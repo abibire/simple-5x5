@@ -6,7 +6,22 @@ import { ExerciseKey, WorkoutExercise, WorkoutHistoryItem } from "../types";
 import { useWorkout } from "../WorkoutContext";
 
 const HomeApp: React.FC = () => {
-  const { weights, workoutHistory } = useWorkout();
+  const { weights, workoutHistory, isLoading } = useWorkout();
+
+  if (isLoading) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "#f9fafb"
+        }}
+      >
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: "#f9fafb" }}>
