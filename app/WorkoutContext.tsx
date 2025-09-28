@@ -6,14 +6,23 @@ import React, {
   useEffect,
   useState
 } from "react";
-import { defaultWeights } from "./constants";
-import { Weights, WorkoutHistoryItem } from "./types";
+import { defaultDeloads, defaultFailures, defaultWeights } from "./constants";
+import {
+  ExerciseDeloads,
+  ExerciseFailures,
+  Weights,
+  WorkoutHistoryItem
+} from "./types";
 
 interface WorkoutContextType {
   weights: Weights;
   setWeights: (weights: Weights) => void;
   workoutHistory: WorkoutHistoryItem[];
   setWorkoutHistory: React.Dispatch<React.SetStateAction<WorkoutHistoryItem[]>>;
+  exerciseFailures: ExerciseFailures;
+  setExerciseFailures: (failures: ExerciseFailures) => void;
+  exerciseDeloads: ExerciseDeloads;
+  setExerciseDeloads: (deloads: ExerciseDeloads) => void;
   isLoading: boolean;
 }
 
@@ -21,7 +30,9 @@ const WorkoutContext = createContext<WorkoutContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
   WEIGHTS: "stronglifts_weights",
-  WORKOUT_HISTORY: "stronglifts_workout_history"
+  WORKOUT_HISTORY: "stronglifts_workout_history",
+  EXERCISE_FAILURES: "stronglifts_exercise_failures",
+  EXERCISE_DELOADS: "stronglifts_exercise_deloads"
 };
 
 export function WorkoutProvider({ children }: { children: ReactNode }) {
@@ -29,6 +40,10 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
   const [workoutHistory, setWorkoutHistoryState] = useState<
     WorkoutHistoryItem[]
   >([]);
+  const [exerciseFailures, setExerciseFailuresState] =
+    useState<ExerciseFailures>(defaultFailures);
+  const [exerciseDeloads, setExerciseDeloadsState] =
+    useState<ExerciseDeloads>(defaultDeloads);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -37,10 +52,13 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
 
   const loadData = async () => {
     try {
-      const [savedWeights, savedHistory] = await Promise.all([
-        AsyncStorage.getItem(STORAGE_KEYS.WEIGHTS),
-        AsyncStorage.getItem(STORAGE_KEYS.WORKOUT_HISTORY)
-      ]);
+      const [savedWeights, savedHistory, savedFailures, savedDeloads] =
+        await Promise.all([
+          AsyncStorage.getItem(STORAGE_KEYS.WEIGHTS),
+          AsyncStorage.getItem(STORAGE_KEYS.WORKOUT_HISTORY),
+          AsyncStorage.getItem(STORAGE_KEYS.EXERCISE_FAILURES),
+          AsyncStorage.getItem(STORAGE_KEYS.EXERCISE_DELOADS)
+        ]);
 
       if (savedWeights) {
         const parsedWeights = JSON.parse(savedWeights);
@@ -50,6 +68,16 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
       if (savedHistory) {
         const parsedHistory = JSON.parse(savedHistory);
         setWorkoutHistoryState(parsedHistory);
+      }
+
+      if (savedFailures) {
+        const parsedFailures = JSON.parse(savedFailures);
+        setExerciseFailuresState(parsedFailures);
+      }
+
+      if (savedDeloads) {
+        const parsedDeloads = JSON.parse(savedDeloads);
+        setExerciseDeloadsState(parsedDeloads);
       }
     } catch (error) {
       console.error("Failed to load data from storage:", error);
@@ -68,6 +96,32 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error("Failed to save weights:", error);
       setWeightsState(newWeights);
+    }
+  };
+
+  const setExerciseFailures = async (newFailures: ExerciseFailures) => {
+    try {
+      await AsyncStorage.setItem(
+        STORAGE_KEYS.EXERCISE_FAILURES,
+        JSON.stringify(newFailures)
+      );
+      setExerciseFailuresState(newFailures);
+    } catch (error) {
+      console.error("Failed to save exercise failures:", error);
+      setExerciseFailuresState(newFailures);
+    }
+  };
+
+  const setExerciseDeloads = async (newDeloads: ExerciseDeloads) => {
+    try {
+      await AsyncStorage.setItem(
+        STORAGE_KEYS.EXERCISE_DELOADS,
+        JSON.stringify(newDeloads)
+      );
+      setExerciseDeloadsState(newDeloads);
+    } catch (error) {
+      console.error("Failed to save exercise deloads:", error);
+      setExerciseDeloadsState(newDeloads);
     }
   };
 
@@ -96,6 +150,10 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         setWeights,
         workoutHistory,
         setWorkoutHistory,
+        exerciseFailures,
+        setExerciseFailures,
+        exerciseDeloads,
+        setExerciseDeloads,
         isLoading
       }}
     >

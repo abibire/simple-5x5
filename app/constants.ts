@@ -1,4 +1,4 @@
-import { CurrentSession, ExerciseKey, Weights, WorkoutType } from './types';
+import { CurrentSession, ExerciseDeloads, ExerciseFailures, ExerciseKey, Weights, WorkoutType } from './types';
 
 export const workouts: Record<WorkoutType, ExerciseKey[]> = {
   A: ['squat', 'bench', 'row'],
@@ -21,6 +21,22 @@ export const defaultWeights: Weights = {
   deadlift: 95
 };
 
+export const defaultFailures: ExerciseFailures = {
+  squat: 0,
+  bench: 0,
+  row: 0,
+  ohp: 0,
+  deadlift: 0
+};
+
+export const defaultDeloads: ExerciseDeloads = {
+  squat: 0,
+  bench: 0,
+  row: 0,
+  ohp: 0,
+  deadlift: 0
+};
+
 export const createDefaultSession = (): CurrentSession => ({
   squat: { sets: [-1, -1, -1, -1, -1], completed: false },
   bench: { sets: [-1, -1, -1, -1, -1], completed: false },
@@ -28,3 +44,23 @@ export const createDefaultSession = (): CurrentSession => ({
   ohp: { sets: [-1, -1, -1, -1, -1], completed: false },
   deadlift: { sets: [-1, -1, -1, -1, -1], completed: false }
 });
+
+export const PROGRESSION_INCREMENTS = {
+  squat: 5,
+  bench: 5,
+  row: 5,
+  ohp: 5,
+  deadlift: 10
+};
+
+export const TARGET_REPS = {
+  squat: 25,
+  bench: 25,
+  row: 25,
+  ohp: 25,
+  deadlift: 5
+};
+
+export const DELOAD_PERCENTAGE = 0.1;
+export const MAX_FAILURES_BEFORE_DELOAD = 3;
+export const MAX_DELOADS_BEFORE_3X5 = 3;

@@ -9,6 +9,22 @@ export interface Weights {
   deadlift: number;
 }
 
+export interface ExerciseFailures {
+  squat: number;
+  bench: number;
+  row: number;
+  ohp: number;
+  deadlift: number;
+}
+
+export interface ExerciseDeloads {
+  squat: number;
+  bench: number;
+  row: number;
+  ohp: number;
+  deadlift: number;
+}
+
 export interface ExerciseSession {
   sets: number[];
   completed: boolean;
@@ -26,6 +42,7 @@ export interface WorkoutExercise {
   name: string;
   weight: number;
   sets: number[];
+  completed: boolean;
 }
 
 export interface WorkoutHistoryItem {

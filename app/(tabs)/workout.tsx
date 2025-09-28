@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
+  Alert,
   ScrollView,
   StatusBar,
   Text,
@@ -7,20 +8,41 @@ import {
   View
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { createDefaultSession, exerciseNames, workouts } from "../constants";
+import {
+  createDefaultSession,
+  DELOAD_PERCENTAGE,
+  exerciseNames,
+  MAX_FAILURES_BEFORE_DELOAD,
+  PROGRESSION_INCREMENTS,
+  TARGET_REPS,
+  workouts
+} from "../constants";
 import { styles } from "../styles";
 import { CurrentSession, ExerciseKey, WorkoutType } from "../types";
 import { formatTime, getRepButtonStyle, getRepButtonTextStyle } from "../utils";
 import { useWorkout } from "../WorkoutContext";
 
 const StrongLifts5x5App: React.FC = () => {
-  const { weights, setWeights, setWorkoutHistory } = useWorkout();
+  const {
+    weights,
+    setWeights,
+    setWorkoutHistory,
+    exerciseFailures,
+    setExerciseFailures,
+    exerciseDeloads,
+    setExerciseDeloads
+  } = useWorkout();
+
   const [currentWorkout, setCurrentWorkout] = useState<WorkoutType>("A");
   const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
   const [timeLeft, setTimeLeft] = useState<number>(180);
   const [currentSession, setCurrentSession] = useState<CurrentSession>(
     createDefaultSession()
   );
+
+  useEffect(() => {
+    checkForDeloads();
+  }, []);
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | null = null;
@@ -36,6 +58,78 @@ const StrongLifts5x5App: React.FC = () => {
       if (interval) clearInterval(interval);
     };
   }, [isTimerRunning, timeLeft]);
+
+  const checkForDeloads = (): void => {
+    const exercises = workouts[currentWorkout];
+    const exercisesToDeload: Array<{
+      exercise: ExerciseKey;
+      oldWeight: number;
+      newWeight: number;
+    }> = [];
+
+    exercises.forEach((exercise: ExerciseKey) => {
+      if (exerciseFailures[exercise] >= MAX_FAILURES_BEFORE_DELOAD) {
+        const oldWeight = weights[exercise];
+        const deloadAmount = Math.round(oldWeight * DELOAD_PERCENTAGE);
+        const newWeight = Math.max(
+          PROGRESSION_INCREMENTS[exercise],
+          oldWeight - deloadAmount
+        );
+
+        exercisesToDeload.push({
+          exercise,
+          oldWeight,
+          newWeight
+        });
+      }
+    });
+
+    if (exercisesToDeload.length > 0) {
+      const deloadText = exercisesToDeload
+        .map(
+          ({ exercise, oldWeight, newWeight }) =>
+            `${exerciseNames[exercise]}: ${oldWeight}lbs → ${newWeight}lbs`
+        )
+        .join("\n");
+
+      Alert.alert(
+        "Deload Recommended",
+        `After 3 failed sessions, these exercises should be deloaded by 10%\n\n${deloadText}`,
+        [
+          {
+            text: "Ignore",
+            style: "cancel"
+          },
+          {
+            text: "Accept",
+            onPress: () => applyDeloads(exercisesToDeload)
+          }
+        ]
+      );
+    }
+  };
+
+  const applyDeloads = (
+    exercisesToDeload: Array<{
+      exercise: ExerciseKey;
+      oldWeight: number;
+      newWeight: number;
+    }>
+  ): void => {
+    const newWeights = { ...weights };
+    const newFailures = { ...exerciseFailures };
+    const newDeloads = { ...exerciseDeloads };
+
+    exercisesToDeload.forEach(({ exercise, newWeight }) => {
+      newWeights[exercise] = newWeight;
+      newFailures[exercise] = 0;
+      newDeloads[exercise] += 1;
+    });
+
+    setWeights(newWeights);
+    setExerciseFailures(newFailures);
+    setExerciseDeloads(newDeloads);
+  };
 
   const startTimer = (duration: number = 180): void => {
     setTimeLeft(duration);
@@ -71,21 +165,27 @@ const StrongLifts5x5App: React.FC = () => {
     });
   };
 
+  const isExerciseCompleted = (exercise: ExerciseKey): boolean => {
+    const sets = currentSession[exercise].sets;
+    const totalReps = sets.reduce((sum, reps) => sum + Math.max(0, reps), 0);
+    const targetReps = TARGET_REPS[exercise];
+    return totalReps >= targetReps;
+  };
+
   const completeWorkout = (): void => {
     const exercises = workouts[currentWorkout];
     const newWeights = { ...weights };
+    const newFailures = { ...exerciseFailures };
+    const newDeloads = { ...exerciseDeloads };
 
     exercises.forEach((exercise: ExerciseKey) => {
-      const sets = currentSession[exercise].sets;
-      const totalReps = sets.reduce((sum, reps) => sum + Math.max(0, reps), 0);
+      const completed = isExerciseCompleted(exercise);
 
-      const targetReps = exercise === "deadlift" ? 5 : 25;
-      if (totalReps >= targetReps) {
-        if (exercise === "deadlift") {
-          newWeights[exercise] += 10;
-        } else {
-          newWeights[exercise] += 5;
-        }
+      if (completed) {
+        newFailures[exercise] = 0;
+        newWeights[exercise] += PROGRESSION_INCREMENTS[exercise];
+      } else {
+        newFailures[exercise] += 1;
       }
     });
 
@@ -95,12 +195,15 @@ const StrongLifts5x5App: React.FC = () => {
       exercises: exercises.map((ex: ExerciseKey) => ({
         name: exerciseNames[ex],
         weight: weights[ex],
-        sets: currentSession[ex].sets.map((reps) => Math.max(0, reps))
+        sets: currentSession[ex].sets.map((reps) => Math.max(0, reps)),
+        completed: isExerciseCompleted(ex)
       }))
     };
 
     setWorkoutHistory((prev) => [workout, ...prev]);
     setWeights(newWeights);
+    setExerciseFailures(newFailures);
+    setExerciseDeloads(newDeloads);
     setCurrentSession(createDefaultSession());
     setCurrentWorkout(currentWorkout === "A" ? "B" : "A");
   };
