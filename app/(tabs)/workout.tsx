@@ -1,9 +1,11 @@
+import { router } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
   ScrollView,
   StatusBar,
   Text,
+  TextInput,
   TouchableOpacity,
   View
 } from "react-native";
@@ -41,6 +43,8 @@ const StrongLifts5x5App: React.FC = () => {
   );
   const [hasShownDeloadAlert, setHasShownDeloadAlert] =
     useState<boolean>(false);
+  const [editingWeight, setEditingWeight] = useState<ExerciseKey | null>(null);
+  const [weightInputValue, setWeightInputValue] = useState<string>("");
 
   useEffect(() => {
     setHasShownDeloadAlert(false);
@@ -180,7 +184,19 @@ const StrongLifts5x5App: React.FC = () => {
     return totalReps >= targetReps;
   };
 
-  const completeWorkout = (): void => {
+  const hasIncompleteSets = (): boolean => {
+    const exercises = workouts[currentWorkout];
+    return exercises.some((exercise: ExerciseKey) => {
+      const sets = currentSession[exercise].sets;
+      if (exercise === "deadlift") {
+        return sets[0] === -1;
+      } else {
+        return sets.some((reps) => reps === -1);
+      }
+    });
+  };
+
+  const finishWorkout = (): void => {
     const exercises = workouts[currentWorkout];
     const newWeights = { ...weights };
     const newFailures = { ...exerciseFailures };
@@ -214,9 +230,55 @@ const StrongLifts5x5App: React.FC = () => {
     setExerciseDeloads(newDeloads);
     setCurrentSession(createDefaultSession());
     setCurrentWorkout(currentWorkout === "A" ? "B" : "A");
+
+    router.push("/");
+  };
+
+  const completeWorkout = (): void => {
+    if (hasIncompleteSets()) {
+      Alert.alert(
+        "Incomplete Workout",
+        "You haven't completed all sets. Do you still want to finish this workout?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel"
+          },
+          {
+            text: "Finish Anyway",
+            onPress: finishWorkout
+          }
+        ]
+      );
+    } else {
+      finishWorkout();
+    }
   };
 
   const getCurrentExercises = (): ExerciseKey[] => workouts[currentWorkout];
+
+  const startEditingWeight = (exercise: ExerciseKey): void => {
+    setEditingWeight(exercise);
+    setWeightInputValue(weights[exercise].toString());
+  };
+
+  const confirmWeightEdit = (): void => {
+    if (editingWeight) {
+      const newWeight = parseInt(weightInputValue);
+      if (!isNaN(newWeight) && newWeight > 0) {
+        const newWeights = { ...weights };
+        newWeights[editingWeight] = newWeight;
+        setWeights(newWeights);
+      }
+      setEditingWeight(null);
+      setWeightInputValue("");
+    }
+  };
+
+  const cancelWeightEdit = (): void => {
+    setEditingWeight(null);
+    setWeightInputValue("");
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -266,9 +328,77 @@ const StrongLifts5x5App: React.FC = () => {
                   <Text style={styles.exerciseName}>
                     {exerciseNames[exercise]}
                   </Text>
-                  <Text style={styles.exerciseWeight}>
-                    {weights[exercise]} lbs
-                  </Text>
+
+                  {editingWeight === exercise ? (
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 8
+                      }}
+                    >
+                      <TextInput
+                        style={{
+                          backgroundColor: "white",
+                          borderWidth: 1,
+                          borderColor: "#d1d5db",
+                          borderRadius: 4,
+                          paddingHorizontal: 8,
+                          paddingVertical: 4,
+                          fontSize: 18,
+                          fontWeight: "bold",
+                          color: "#2563eb",
+                          minWidth: 60,
+                          textAlign: "center"
+                        }}
+                        value={weightInputValue}
+                        onChangeText={setWeightInputValue}
+                        keyboardType="numeric"
+                        selectTextOnFocus
+                        autoFocus
+                      />
+                      <Text style={styles.exerciseWeight}>lbs</Text>
+                      <TouchableOpacity
+                        onPress={confirmWeightEdit}
+                        style={{
+                          backgroundColor: "#10b981",
+                          paddingHorizontal: 8,
+                          paddingVertical: 4,
+                          borderRadius: 4
+                        }}
+                      >
+                        <Text style={{ color: "white", fontSize: 12 }}>✓</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={cancelWeightEdit}
+                        style={{
+                          backgroundColor: "#ef4444",
+                          paddingHorizontal: 8,
+                          paddingVertical: 4,
+                          borderRadius: 4
+                        }}
+                      >
+                        <Text style={{ color: "white", fontSize: 12 }}>✕</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ) : (
+                    <TouchableOpacity
+                      onPress={() => startEditingWeight(exercise)}
+                    >
+                      <Text
+                        style={[
+                          styles.exerciseWeight,
+                          {
+                            textDecorationLine: "underline",
+                            textDecorationColor: "#2563eb",
+                            textDecorationStyle: "solid"
+                          }
+                        ]}
+                      >
+                        {weights[exercise]} lbs
+                      </Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
 
                 <Text style={styles.exerciseDescription}>
