@@ -39,10 +39,13 @@ const StrongLifts5x5App: React.FC = () => {
   const [currentSession, setCurrentSession] = useState<CurrentSession>(
     createDefaultSession()
   );
+  const [hasShownDeloadAlert, setHasShownDeloadAlert] =
+    useState<boolean>(false);
 
   useEffect(() => {
+    setHasShownDeloadAlert(false);
     checkForDeloads();
-  }, []);
+  }, [currentWorkout]);
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | null = null;
@@ -60,6 +63,8 @@ const StrongLifts5x5App: React.FC = () => {
   }, [isTimerRunning, timeLeft]);
 
   const checkForDeloads = (): void => {
+    if (hasShownDeloadAlert) return;
+
     const exercises = workouts[currentWorkout];
     const exercisesToDeload: Array<{
       exercise: ExerciseKey;
@@ -70,10 +75,11 @@ const StrongLifts5x5App: React.FC = () => {
     exercises.forEach((exercise: ExerciseKey) => {
       if (exerciseFailures[exercise] >= MAX_FAILURES_BEFORE_DELOAD) {
         const oldWeight = weights[exercise];
-        const deloadAmount = Math.round(oldWeight * DELOAD_PERCENTAGE);
+        const deloadAmount = oldWeight * DELOAD_PERCENTAGE;
+        const rawNewWeight = oldWeight - deloadAmount;
         const newWeight = Math.max(
           PROGRESSION_INCREMENTS[exercise],
-          oldWeight - deloadAmount
+          Math.round(rawNewWeight / 5) * 5
         );
 
         exercisesToDeload.push({
@@ -85,6 +91,8 @@ const StrongLifts5x5App: React.FC = () => {
     });
 
     if (exercisesToDeload.length > 0) {
+      setHasShownDeloadAlert(true);
+
       const deloadText = exercisesToDeload
         .map(
           ({ exercise, oldWeight, newWeight }) =>
@@ -94,7 +102,7 @@ const StrongLifts5x5App: React.FC = () => {
 
       Alert.alert(
         "Deload Recommended",
-        `After 3 failed sessions, these exercises should be deloaded by 10%\n\n${deloadText}`,
+        `After 3 failed sessions, these exercises should be deloaded by 10%:\n\n${deloadText}`,
         [
           {
             text: "Ignore",
