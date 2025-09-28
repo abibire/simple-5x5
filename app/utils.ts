@@ -6,15 +6,11 @@ export const formatTime = (seconds: number): string => {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 };
 export const getRepButtonStyle = (reps: number) => {
-  if (reps === 5) return styles.repButtonSuccess;
-  if (reps > 0) return styles.repButtonPartial;
-  if (reps === 0) return styles.repButtonFailure;
+  if (reps > 0) return styles.repButtonComplete;
   return styles.repButtonEmpty;
 };
 
 export const getRepButtonTextStyle = (reps: number) => {
-  if (reps === 5) return styles.repButtonTextSuccess;
-  if (reps > 0) return styles.repButtonTextPartial;
-  if (reps === 0) return styles.repButtonTextFailure;
+  if (reps > 0) return styles.repButtonTextComplete;
   return styles.repButtonTextEmpty;
 };

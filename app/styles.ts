@@ -104,17 +104,9 @@ export const styles = StyleSheet.create({
     backgroundColor: '#f3f4f6',
     borderColor: '#d1d5db',
   },
-  repButtonSuccess: {
-    backgroundColor: '#dcfce7',
-    borderColor: '#22c55e',
-  },
-  repButtonPartial: {
-    backgroundColor: '#fef3c7',
-    borderColor: '#eab308',
-  },
-  repButtonFailure: {
-    backgroundColor: '#fee2e2',
-    borderColor: '#ef4444',
+  repButtonComplete: {
+    backgroundColor: '#2563eb',
+    borderColor: '#2563eb',
   },
   repButtonText: {
     fontSize: 18,
@@ -123,14 +115,8 @@ export const styles = StyleSheet.create({
   repButtonTextEmpty: {
     color: '#9ca3af',
   },
-  repButtonTextSuccess: {
-    color: '#15803d',
-  },
-  repButtonTextPartial: {
-    color: '#ca8a04',
-  },
-  repButtonTextFailure: {
-    color: '#dc2626',
+  repButtonTextComplete: {
+    color: 'white',
   },
   completeButtonContainer: {
     padding: 16,
@@ -148,7 +134,6 @@ export const styles = StyleSheet.create({
   },
   historyContainer: {
     backgroundColor: 'white',
-    marginTop: 16,
   },
   historyHeader: {
     padding: 16,
@@ -161,7 +146,7 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
   },
   historyList: {
-    maxHeight: 256,
+    backgroundColor: 'white',
   },
   historyItem: {
     padding: 12,
@@ -196,7 +181,6 @@ export const styles = StyleSheet.create({
   },
   weightsContainer: {
     backgroundColor: 'white',
-    marginTop: 16,
   },
   weightsHeader: {
     padding: 16,

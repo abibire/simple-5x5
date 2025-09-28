@@ -9,6 +9,9 @@ export default function HomeScreen() {
 
   return (
     <ScrollView>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>StrongLifts 5×5</Text>
+      </View>
       <View style={styles.weightsContainer}>
         <View style={styles.weightsHeader}>
           <Text style={styles.weightsTitle}>📈 Current Weights</Text>
@@ -30,9 +33,8 @@ export default function HomeScreen() {
             <Text style={styles.historyTitle}>📅 Recent Workouts</Text>
           </View>
           <View style={styles.historyList}>
-            {workoutHistory
-              .slice(0, 5)
-              .map((workout: WorkoutHistoryItem, index: number) => (
+            {workoutHistory.map(
+              (workout: WorkoutHistoryItem, index: number) => (
                 <View key={index} style={styles.historyItem}>
                   <View style={styles.historyItemHeader}>
                     <Text style={styles.historyWorkoutType}>
@@ -55,7 +57,8 @@ export default function HomeScreen() {
                     )}
                   </View>
                 </View>
-              ))}
+              )
+            )}
           </View>
         </View>
       )}
