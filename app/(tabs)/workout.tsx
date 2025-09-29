@@ -182,6 +182,7 @@ const StrongLifts5x5App: React.FC = () => {
         title: "Rest Timer Complete!",
         body: "Time to get back to your workout",
         categoryIdentifier: "timer-complete",
+        sound: true,
         data: { type: "timer-complete" }
       },
       trigger
