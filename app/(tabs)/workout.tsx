@@ -1,7 +1,10 @@
+import * as Notifications from "expo-notifications";
 import { router } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Alert,
+  AppState,
+  Platform,
   ScrollView,
   StatusBar,
   Text,
@@ -37,7 +40,10 @@ const StrongLifts5x5App: React.FC = () => {
 
   const [currentWorkout, setCurrentWorkout] = useState<WorkoutType>("A");
   const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
-  const [timeLeft, setTimeLeft] = useState<number>(180);
+  const TEST_MODE = true;
+  const [timeLeft, setTimeLeft] = useState<number>(TEST_MODE ? 2 : 180);
+  const [endsAt, setEndsAt] = useState<number | null>(null);
+  const [scheduledId, setScheduledId] = useState<string | null>(null);
   const [currentSession, setCurrentSession] = useState<CurrentSession>(
     createDefaultSession()
   );
@@ -46,36 +52,209 @@ const StrongLifts5x5App: React.FC = () => {
   const [editingWeight, setEditingWeight] = useState<ExerciseKey | null>(null);
   const [weightInputValue, setWeightInputValue] = useState<string>("");
 
+  const appState = useRef(AppState.currentState);
+  const isNative = Platform.OS !== "web";
+
   useEffect(() => {
+    setupNotifications();
     setHasShownDeloadAlert(false);
     checkForDeloads();
   }, [currentWorkout]);
 
   useEffect(() => {
+    if (!isNative) return;
+    const getLast = (Notifications as any).getLastNotificationResponse;
+    const last =
+      typeof getLast === "function" ? getLast.call(Notifications) : null;
+    if (last?.actionIdentifier === "complete-set") {
+      Notifications.dismissAllNotificationsAsync();
+      router.push("/(tabs)/workout");
+      completeNextSetAndRestart();
+    }
+  }, [isNative]);
+
+  useEffect(() => {
+    if (!isNative) return;
+    const sub = Notifications.addNotificationResponseReceivedListener(
+      handleNotificationResponse
+    );
+    return () => sub.remove();
+  }, [isNative]);
+
+  useEffect(() => {
+    const sub = AppState.addEventListener("change", (next) => {
+      const prev = appState.current;
+      appState.current = next;
+      if (prev?.match(/inactive|background/) && next === "active") {
+        if (endsAt) {
+          const diff = Math.max(0, Math.ceil((endsAt - Date.now()) / 1000));
+          setTimeLeft(diff);
+          setIsTimerRunning(diff > 0);
+        }
+      }
+    });
+    return () => sub.remove();
+  }, [endsAt]);
+
+  useEffect(() => {
     let interval: ReturnType<typeof setInterval> | null = null;
-    if (isTimerRunning && timeLeft > 0) {
+    if (isTimerRunning && endsAt) {
       interval = setInterval(() => {
-        setTimeLeft((time) => time - 1);
-      }, 1000);
-    } else if (timeLeft === 0) {
-      setIsTimerRunning(false);
-      setTimeLeft(180);
+        const diff = Math.max(0, Math.ceil((endsAt - Date.now()) / 1000));
+        setTimeLeft(diff);
+        if (diff === 0) {
+          setIsTimerRunning(false);
+          clearInterval(interval!);
+        }
+      }, 500);
     }
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isTimerRunning, timeLeft]);
+  }, [isTimerRunning, endsAt]);
+
+  const setupNotifications = async () => {
+    if (!isNative) return;
+    await Notifications.requestPermissionsAsync();
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowBanner: true,
+        shouldShowList: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false
+      })
+    });
+    await Notifications.setNotificationCategoryAsync("timer-complete", [
+      {
+        identifier: "reopen-app",
+        buttonTitle: "Open App",
+        options: { opensAppToForeground: true }
+      },
+      {
+        identifier: "complete-set",
+        buttonTitle: "Complete Set & Restart",
+        options: { opensAppToForeground: true }
+      }
+    ]);
+    if (Platform.OS === "android") {
+      await Notifications.setNotificationChannelAsync("rest-timer", {
+        name: "Rest Timer",
+        importance: Notifications.AndroidImportance.HIGH,
+        vibrationPattern: [0, 250, 250, 250],
+        lockscreenVisibility:
+          Notifications.AndroidNotificationVisibility.PUBLIC,
+        bypassDnd: false,
+        sound: undefined
+      });
+    }
+  };
+
+  const handleNotificationResponse = async (
+    response: Notifications.NotificationResponse
+  ) => {
+    await Notifications.dismissAllNotificationsAsync();
+    router.push("/(tabs)/workout");
+
+    const actionIdentifier = response.actionIdentifier;
+    if (actionIdentifier === "complete-set") {
+      completeNextSetAndRestart();
+    }
+  };
+
+  const scheduleRestNotification = async (seconds: number) => {
+    if (!isNative) return;
+    if (scheduledId) {
+      try {
+        await Notifications.cancelScheduledNotificationAsync(scheduledId);
+      } catch {}
+    }
+    const trigger: Notifications.NotificationTriggerInput =
+      Platform.OS === "android"
+        ? {
+            type: "timeInterval",
+            channelId: "rest-timer",
+            seconds,
+            repeats: false
+          }
+        : { type: "timeInterval", seconds, repeats: false };
+    const id = await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Rest Timer Complete!",
+        body: "Time to get back to your workout",
+        categoryIdentifier: "timer-complete",
+        data: { type: "timer-complete" }
+      },
+      trigger
+    });
+    setScheduledId(id);
+  };
+
+  const startTimer = async (duration: number = 180) => {
+    const secs = Math.max(1, Math.floor(duration));
+    setEndsAt(Date.now() + secs * 1000);
+    setTimeLeft(secs);
+    setIsTimerRunning(true);
+    await scheduleRestNotification(secs);
+  };
+
+  const completeNextSetAndRestart = () => {
+    setCurrentSession((prevSession) => {
+      const exercises = getCurrentExercises();
+      let foundEmptySet = false;
+      let updatedSession = { ...prevSession };
+
+      for (const ex of exercises) {
+        const currentSets = prevSession[ex].sets;
+        if (ex === "deadlift") {
+          if (currentSets[0] === -1) {
+            updatedSession = {
+              ...updatedSession,
+              [ex]: {
+                ...updatedSession[ex],
+                sets: [5, ...currentSets.slice(1)]
+              }
+            };
+            foundEmptySet = true;
+            break;
+          }
+        } else {
+          const emptyIndex = currentSets.findIndex((r) => r === -1);
+          if (emptyIndex !== -1) {
+            const newSets = [...currentSets];
+            newSets[emptyIndex] = 5;
+            updatedSession = {
+              ...updatedSession,
+              [ex]: {
+                ...updatedSession[ex],
+                sets: newSets
+              }
+            };
+            foundEmptySet = true;
+            break;
+          }
+        }
+      }
+
+      if (foundEmptySet) {
+        setIsTimerRunning(false);
+        setEndsAt(null);
+        setTimeout(() => {
+          startTimer(TEST_MODE ? 2 : 180);
+        }, 100);
+      }
+
+      return updatedSession;
+    });
+  };
 
   const checkForDeloads = (): void => {
     if (hasShownDeloadAlert) return;
-
     const exercises = workouts[currentWorkout];
     const exercisesToDeload: Array<{
       exercise: ExerciseKey;
       oldWeight: number;
       newWeight: number;
     }> = [];
-
     exercises.forEach((exercise: ExerciseKey) => {
       if (exerciseFailures[exercise] >= MAX_FAILURES_BEFORE_DELOAD) {
         const oldWeight = weights[exercise];
@@ -85,7 +264,6 @@ const StrongLifts5x5App: React.FC = () => {
           PROGRESSION_INCREMENTS[exercise],
           Math.round(rawNewWeight / 5) * 5
         );
-
         exercisesToDeload.push({
           exercise,
           oldWeight,
@@ -93,29 +271,20 @@ const StrongLifts5x5App: React.FC = () => {
         });
       }
     });
-
     if (exercisesToDeload.length > 0) {
       setHasShownDeloadAlert(true);
-
       const deloadText = exercisesToDeload
         .map(
           ({ exercise, oldWeight, newWeight }) =>
             `${exerciseNames[exercise]}: ${oldWeight}lbs → ${newWeight}lbs`
         )
         .join("\n");
-
       Alert.alert(
         "Deload Recommended",
         `After 3 failed sessions, these exercises should be deloaded by 10%:\n\n${deloadText}`,
         [
-          {
-            text: "Ignore",
-            style: "cancel"
-          },
-          {
-            text: "Accept",
-            onPress: () => applyDeloads(exercisesToDeload)
-          }
+          { text: "Ignore", style: "cancel" },
+          { text: "Accept", onPress: () => applyDeloads(exercisesToDeload) }
         ]
       );
     }
@@ -131,40 +300,28 @@ const StrongLifts5x5App: React.FC = () => {
     const newWeights = { ...weights };
     const newFailures = { ...exerciseFailures };
     const newDeloads = { ...exerciseDeloads };
-
     exercisesToDeload.forEach(({ exercise, newWeight }) => {
       newWeights[exercise] = newWeight;
       newFailures[exercise] = 0;
       newDeloads[exercise] += 1;
     });
-
     setWeights(newWeights);
     setExerciseFailures(newFailures);
     setExerciseDeloads(newDeloads);
-  };
-
-  const startTimer = (duration: number = 180): void => {
-    setTimeLeft(duration);
-    setIsTimerRunning(true);
   };
 
   const updateSet = (exercise: ExerciseKey, setIndex: number): void => {
     setCurrentSession((prev) => {
       const currentReps = prev[exercise].sets[setIndex];
       let nextReps: number;
-
-      if (currentReps === -1) {
-        nextReps = 5;
-      } else if (currentReps === 0) {
-        nextReps = -1;
-      } else {
-        nextReps = currentReps - 1;
-      }
+      if (currentReps === -1) nextReps = 5;
+      else if (currentReps === 0) nextReps = -1;
+      else nextReps = currentReps - 1;
       if (nextReps > 0) {
-        const restTime = nextReps === 5 ? 180 : 300;
+        const restTime =
+          nextReps === 5 ? (TEST_MODE ? 2 : 180) : TEST_MODE ? 3 : 300;
         startTimer(restTime);
       }
-
       return {
         ...prev,
         [exercise]: {
@@ -188,11 +345,8 @@ const StrongLifts5x5App: React.FC = () => {
     const exercises = workouts[currentWorkout];
     return exercises.some((exercise: ExerciseKey) => {
       const sets = currentSession[exercise].sets;
-      if (exercise === "deadlift") {
-        return sets[0] === -1;
-      } else {
-        return sets.some((reps) => reps === -1);
-      }
+      if (exercise === "deadlift") return sets[0] === -1;
+      else return sets.some((reps) => reps === -1);
     });
   };
 
@@ -201,10 +355,8 @@ const StrongLifts5x5App: React.FC = () => {
     const newWeights = { ...weights };
     const newFailures = { ...exerciseFailures };
     const newDeloads = { ...exerciseDeloads };
-
     exercises.forEach((exercise: ExerciseKey) => {
       const completed = isExerciseCompleted(exercise);
-
       if (completed) {
         newFailures[exercise] = 0;
         newWeights[exercise] += PROGRESSION_INCREMENTS[exercise];
@@ -212,7 +364,6 @@ const StrongLifts5x5App: React.FC = () => {
         newFailures[exercise] += 1;
       }
     });
-
     const workout = {
       date: new Date().toLocaleDateString(),
       type: currentWorkout,
@@ -223,14 +374,12 @@ const StrongLifts5x5App: React.FC = () => {
         completed: isExerciseCompleted(ex)
       }))
     };
-
     setWorkoutHistory((prev) => [workout, ...prev]);
     setWeights(newWeights);
     setExerciseFailures(newFailures);
     setExerciseDeloads(newDeloads);
     setCurrentSession(createDefaultSession());
     setCurrentWorkout(currentWorkout === "A" ? "B" : "A");
-
     router.push("/");
   };
 
@@ -240,14 +389,8 @@ const StrongLifts5x5App: React.FC = () => {
         "Incomplete Workout",
         "You haven't completed all sets. Do you still want to finish this workout?",
         [
-          {
-            text: "Cancel",
-            style: "cancel"
-          },
-          {
-            text: "Finish Anyway",
-            onPress: finishWorkout
-          }
+          { text: "Cancel", style: "cancel" },
+          { text: "Finish Anyway", onPress: finishWorkout }
         ]
       );
     } else {
@@ -287,159 +430,115 @@ const StrongLifts5x5App: React.FC = () => {
         backgroundColor="#2563eb"
         translucent={false}
       />
-
       <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>StrongLifts 5×5</Text>
           <Text style={styles.headerSubtitle}>Workout {currentWorkout}</Text>
         </View>
-
         <View style={styles.timerContainer}>
           <View style={styles.timerRow}>
             <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
           </View>
           <View style={styles.presetButtons}>
             <TouchableOpacity
-              onPress={() => startTimer(90)}
+              onPress={() => startTimer(TEST_MODE ? 1 : 90)}
               style={styles.presetButton}
             >
               <Text style={styles.presetButtonText}>1:30</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => startTimer(180)}
+              onPress={() => startTimer(TEST_MODE ? 2 : 180)}
               style={styles.presetButton}
             >
               <Text style={styles.presetButtonText}>3:00</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => startTimer(300)}
+              onPress={() => startTimer(TEST_MODE ? 3 : 300)}
               style={styles.presetButton}
             >
               <Text style={styles.presetButtonText}>5:00</Text>
             </TouchableOpacity>
           </View>
         </View>
-
         <View style={styles.workoutContainer}>
-          {getCurrentExercises().map(
-            (exercise: ExerciseKey, exerciseIndex: number) => (
-              <View key={exercise} style={styles.exerciseContainer}>
-                <View style={styles.exerciseHeader}>
-                  <Text style={styles.exerciseName}>
-                    {exerciseNames[exercise]}
-                  </Text>
-
-                  {editingWeight === exercise ? (
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        gap: 8
-                      }}
-                    >
-                      <TextInput
-                        style={{
-                          backgroundColor: "white",
-                          borderWidth: 1,
-                          borderColor: "#d1d5db",
-                          borderRadius: 4,
-                          paddingHorizontal: 8,
-                          paddingVertical: 4,
-                          fontSize: 18,
-                          fontWeight: "bold",
-                          color: "#2563eb",
-                          minWidth: 60,
-                          textAlign: "center"
-                        }}
-                        value={weightInputValue}
-                        onChangeText={setWeightInputValue}
-                        keyboardType="numeric"
-                        selectTextOnFocus
-                        autoFocus
-                      />
-                      <Text style={styles.exerciseWeight}>lbs</Text>
-                      <TouchableOpacity
-                        onPress={confirmWeightEdit}
-                        style={{
-                          backgroundColor: "#10b981",
-                          paddingHorizontal: 8,
-                          paddingVertical: 4,
-                          borderRadius: 4
-                        }}
-                      >
-                        <Text style={{ color: "white", fontSize: 12 }}>✓</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        onPress={cancelWeightEdit}
-                        style={{
-                          backgroundColor: "#ef4444",
-                          paddingHorizontal: 8,
-                          paddingVertical: 4,
-                          borderRadius: 4
-                        }}
-                      >
-                        <Text style={{ color: "white", fontSize: 12 }}>✕</Text>
-                      </TouchableOpacity>
-                    </View>
-                  ) : (
-                    <TouchableOpacity
-                      onPress={() => startEditingWeight(exercise)}
-                    >
-                      <Text
-                        style={[
-                          styles.exerciseWeight,
-                          {
-                            textDecorationLine: "underline",
-                            textDecorationColor: "#2563eb",
-                            textDecorationStyle: "solid"
-                          }
-                        ]}
-                      >
-                        {weights[exercise]} lbs
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-
-                <Text style={styles.exerciseDescription}>
-                  {exercise === "deadlift"
-                    ? "1 set × 5 reps"
-                    : "5 sets × 5 reps"}
+          {getCurrentExercises().map((exercise: ExerciseKey) => (
+            <View key={exercise} style={styles.exerciseContainer}>
+              <View style={styles.exerciseHeader}>
+                <Text style={styles.exerciseName}>
+                  {exerciseNames[exercise]}
                 </Text>
-
-                <View style={styles.setsContainer}>
-                  {currentSession[exercise].sets.map(
-                    (reps: number, setIndex: number) => {
-                      if (exercise === "deadlift" && setIndex > 0) return null;
-
-                      return (
-                        <View key={setIndex} style={styles.setContainer}>
-                          <Text style={styles.setLabel}>
-                            Set {setIndex + 1}
-                          </Text>
-                          <TouchableOpacity
-                            onPress={() => updateSet(exercise, setIndex)}
-                            style={[styles.repButton, getRepButtonStyle(reps)]}
-                          >
-                            <Text
-                              style={[
-                                styles.repButtonText,
-                                getRepButtonTextStyle(reps)
-                              ]}
-                            >
-                              {reps >= 0 ? reps.toString() : ""}
-                            </Text>
-                          </TouchableOpacity>
-                        </View>
-                      );
-                    }
-                  )}
-                </View>
+                {editingWeight === exercise ? (
+                  <View style={styles.weightEditContainer}>
+                    <TextInput
+                      style={styles.weightInput}
+                      value={weightInputValue}
+                      onChangeText={setWeightInputValue}
+                      keyboardType="numeric"
+                      selectTextOnFocus
+                      autoFocus
+                      onSubmitEditing={confirmWeightEdit}
+                    />
+                    <Text style={styles.exerciseWeight}>lbs</Text>
+                    <TouchableOpacity
+                      onPress={confirmWeightEdit}
+                      style={[
+                        styles.weightEditButton,
+                        styles.weightEditButtonConfirm
+                      ]}
+                    >
+                      <Text style={styles.weightEditButtonText}>✓</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={cancelWeightEdit}
+                      style={[
+                        styles.weightEditButton,
+                        styles.weightEditButtonCancel
+                      ]}
+                    >
+                      <Text style={styles.weightEditButtonText}>✕</Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <TouchableOpacity
+                    onPress={() => startEditingWeight(exercise)}
+                  >
+                    <Text style={styles.exerciseWeightClickable}>
+                      {weights[exercise]} lbs
+                    </Text>
+                  </TouchableOpacity>
+                )}
               </View>
-            )
-          )}
+              <Text style={styles.exerciseDescription}>
+                {exercise === "deadlift" ? "1 set × 5 reps" : "5 sets × 5 reps"}
+              </Text>
+              <View style={styles.setsContainer}>
+                {currentSession[exercise].sets.map(
+                  (reps: number, setIndex: number) => {
+                    if (exercise === "deadlift" && setIndex > 0) return null;
+                    return (
+                      <View key={setIndex} style={styles.setContainer}>
+                        <Text style={styles.setLabel}>Set {setIndex + 1}</Text>
+                        <TouchableOpacity
+                          onPress={() => updateSet(exercise, setIndex)}
+                          style={[styles.repButton, getRepButtonStyle(reps)]}
+                        >
+                          <Text
+                            style={[
+                              styles.repButtonText,
+                              getRepButtonTextStyle(reps)
+                            ]}
+                          >
+                            {reps >= 0 ? reps.toString() : ""}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    );
+                  }
+                )}
+              </View>
+            </View>
+          ))}
         </View>
-
         <View style={styles.completeButtonContainer}>
           <TouchableOpacity
             onPress={completeWorkout}

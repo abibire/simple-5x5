@@ -75,10 +75,56 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#2563eb',
   },
+  exerciseWeightClickable: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#2563eb',
+    textDecorationLine: 'underline',
+    textDecorationColor: '#2563eb',
+    textDecorationStyle: 'solid',
+  },
   exerciseDescription: {
     fontSize: 12,
     color: '#6b7280',
     marginBottom: 8,
+  },
+  weightEditContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  weightInput: {
+    backgroundColor: 'white',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#2563eb',
+    minWidth: 60,
+    textAlign: 'center',
+  },
+  weightEditButton: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+    minWidth: 28,
+    minHeight: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  weightEditButtonConfirm: {
+    backgroundColor: '#10b981',
+  },
+  weightEditButtonCancel: {
+    backgroundColor: '#ef4444',
+  },
+  weightEditButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   setsContainer: {
     flexDirection: 'row',
@@ -140,6 +186,9 @@ export const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
     backgroundColor: '#f9fafb',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   historyTitle: {
     fontSize: 18,
@@ -206,5 +255,15 @@ export const styles = StyleSheet.create({
   weightValue: {
     fontSize: 14,
     fontWeight: 'bold',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f9fafb',
+  },
+  homeContainer: {
+    flex: 1,
+    backgroundColor: '#f9fafb',
   },
 });

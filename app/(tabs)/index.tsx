@@ -1,12 +1,56 @@
-import { ScrollView, StatusBar, Text, View } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import {
+  Alert,
+  ScrollView,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View
+} from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { exerciseNames } from "../constants";
+import {
+  defaultDeloads,
+  defaultFailures,
+  defaultWeights,
+  exerciseNames
+} from "../constants";
 import { styles } from "../styles";
 import { ExerciseKey, WorkoutExercise, WorkoutHistoryItem } from "../types";
 import { useWorkout } from "../WorkoutContext";
 
 const HomeApp: React.FC = () => {
-  const { weights, workoutHistory, isLoading } = useWorkout();
+  const {
+    weights,
+    workoutHistory,
+    setWorkoutHistory,
+    setWeights,
+    setExerciseFailures,
+    setExerciseDeloads,
+    isLoading
+  } = useWorkout();
+
+  const confirmDeleteHistory = (): void => {
+    Alert.alert(
+      "Reset All Data",
+      "Are you sure you want to permanently delete all workout history and reset weights to starting values? This cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Reset All",
+          style: "destructive",
+          onPress: () => {
+            setWorkoutHistory([]);
+            setWeights(defaultWeights);
+            setExerciseFailures(defaultFailures);
+            setExerciseDeloads(defaultDeloads);
+          }
+        }
+      ]
+    );
+  };
 
   if (isLoading) {
     return (
@@ -48,6 +92,9 @@ const HomeApp: React.FC = () => {
           <View style={styles.historyContainer}>
             <View style={styles.historyHeader}>
               <Text style={styles.historyTitle}>📅 Recent Workouts</Text>
+              <TouchableOpacity onPress={confirmDeleteHistory}>
+                <MaterialCommunityIcons name="delete" size={24} color="red" />
+              </TouchableOpacity>
             </View>
             <View style={styles.historyList}>
               {workoutHistory.map(
