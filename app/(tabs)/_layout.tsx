@@ -1,5 +1,4 @@
 import { HapticTab } from "@/components/haptic-tab";
-import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Colors } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -12,7 +11,8 @@ export default function TabLayout() {
     <WorkoutProvider>
       <Tabs
         screenOptions={{
-          tabBarActiveTintColor: Colors["light"].tint,
+          tabBarActiveTintColor: "#2563eb",
+          tabBarInactiveTintColor: Colors.light.tabIconDefault,
           headerShown: false,
           tabBarButton: HapticTab
         }}
@@ -21,8 +21,8 @@ export default function TabLayout() {
           name="index"
           options={{
             title: "Home",
-            tabBarIcon: ({ color }) => (
-              <IconSymbol size={28} name="house.fill" color={color} />
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="home" size={size} color={color} />
             )
           }}
         />
