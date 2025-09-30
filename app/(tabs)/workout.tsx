@@ -132,7 +132,7 @@ const StrongLifts5x5App: React.FC = () => {
       },
       {
         identifier: "complete-set",
-        buttonTitle: "Complete Set & Restart",
+        buttonTitle: "Complete next set",
         options: { opensAppToForeground: true }
       }
     ]);
@@ -306,6 +306,7 @@ const StrongLifts5x5App: React.FC = () => {
   };
 
   const updateSet = (exercise: ExerciseKey, setIndex: number): void => {
+    Notifications.dismissAllNotificationsAsync();
     setCurrentSession((prev) => {
       const currentReps = prev[exercise].sets[setIndex];
       let nextReps: number;
