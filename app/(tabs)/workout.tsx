@@ -144,7 +144,7 @@ const StrongLifts5x5App: React.FC = () => {
         lockscreenVisibility:
           Notifications.AndroidNotificationVisibility.PUBLIC,
         bypassDnd: false,
-        sound: undefined
+        sound: "set_bell.wav"
       });
     }
   };
@@ -154,7 +154,6 @@ const StrongLifts5x5App: React.FC = () => {
   ) => {
     await Notifications.dismissAllNotificationsAsync();
     router.push("/(tabs)/workout");
-
     const actionIdentifier = response.actionIdentifier;
     if (actionIdentifier === "complete-set") {
       completeNextSetAndRestart();
@@ -168,22 +167,20 @@ const StrongLifts5x5App: React.FC = () => {
         await Notifications.cancelScheduledNotificationAsync(scheduledId);
       } catch {}
     }
-    const trigger: Notifications.NotificationTriggerInput =
-      Platform.OS === "android"
-        ? {
-            type: "timeInterval",
-            channelId: "rest-timer",
-            seconds,
-            repeats: false
-          }
-        : { type: "timeInterval", seconds, repeats: false };
+    const trigger: Notifications.NotificationTriggerInput = {
+      type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+      seconds,
+      repeats: false,
+      ...(Platform.OS === "android" ? { channelId: "rest-timer" } : {})
+    };
     const id = await Notifications.scheduleNotificationAsync({
       content: {
         title: "Rest Timer Complete!",
         body: "Time to get back to your workout",
         categoryIdentifier: "timer-complete",
-        sound: true,
-        data: { type: "timer-complete" }
+        sound: Platform.OS === "ios" ? "set_bell.wav" : true,
+        data: { type: "timer-complete" },
+        autoDismiss: true
       },
       trigger
     });
@@ -203,7 +200,6 @@ const StrongLifts5x5App: React.FC = () => {
       const exercises = getCurrentExercises();
       let foundEmptySet = false;
       let updatedSession = { ...prevSession };
-
       for (const ex of exercises) {
         const currentSets = prevSession[ex].sets;
         if (ex === "deadlift") {
@@ -235,7 +231,6 @@ const StrongLifts5x5App: React.FC = () => {
           }
         }
       }
-
       if (foundEmptySet) {
         setIsTimerRunning(false);
         setEndsAt(null);
@@ -243,7 +238,6 @@ const StrongLifts5x5App: React.FC = () => {
           startTimer(TEST_MODE ? 2 : 180);
         }, 100);
       }
-
       return updatedSession;
     });
   };
@@ -284,7 +278,7 @@ const StrongLifts5x5App: React.FC = () => {
         "Deload Recommended",
         `After 3 failed sessions, these exercises should be deloaded by 10%:\n\n${deloadText}`,
         [
-          { text: "Ignore", style: "cancel" },
+          { text: "yolo", style: "cancel" },
           { text: "Accept", onPress: () => applyDeloads(exercisesToDeload) }
         ]
       );
@@ -389,10 +383,7 @@ const StrongLifts5x5App: React.FC = () => {
       Alert.alert(
         "Incomplete Workout",
         "You haven't completed all sets. Do you still want to finish this workout?",
-        [
-          { text: "Cancel", style: "cancel" },
-          { text: "Finish Anyway", onPress: finishWorkout }
-        ]
+        [{ text: "Cancel" }, { text: "Finish", onPress: finishWorkout }]
       );
     } else {
       finishWorkout();
@@ -433,7 +424,7 @@ const StrongLifts5x5App: React.FC = () => {
       />
       <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>StrongLifts 5×5</Text>
+          <Text style={styles.headerTitle}>Simple 5×5</Text>
           <Text style={styles.headerSubtitle}>Workout {currentWorkout}</Text>
         </View>
         <View style={styles.timerContainer}>

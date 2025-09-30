@@ -1,6 +1,8 @@
 import { HapticTab } from "@/components/haptic-tab";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Colors } from "@/constants/theme";
+import { Ionicons } from "@expo/vector-icons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Tabs } from "expo-router";
 import React from "react";
 import { WorkoutProvider } from "../WorkoutContext";
@@ -28,8 +30,12 @@ export default function TabLayout() {
           name="workout"
           options={{
             title: "Lift",
-            tabBarIcon: ({ color }) => (
-              <IconSymbol size={28} name="paperplane.fill" color={color} />
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons
+                name="weight-lifter"
+                size={size}
+                color={color}
+              />
             )
           }}
         />
@@ -37,8 +43,8 @@ export default function TabLayout() {
           name="settings"
           options={{
             title: "Settings",
-            tabBarIcon: ({ color }) => (
-              <IconSymbol size={28} name="paperplane.fill" color={color} />
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="settings-sharp" size={size} color={color} />
             )
           }}
         />

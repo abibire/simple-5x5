@@ -70,7 +70,8 @@ const HomeApp: React.FC = () => {
   return (
     <View style={{ flex: 1, backgroundColor: "#f9fafb" }}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>StrongLifts 5×5</Text>
+        <Text style={styles.headerTitle}>Simple 5×5</Text>
+        <Text style={styles.headerSubtitle}>Workout log</Text>
       </View>
       <ScrollView style={styles.scrollView}>
         <View style={styles.weightsContainer}>
