@@ -20,3 +20,18 @@ export const getRepButtonTextStyle = (reps: number) => {
 export const formatWeight = (weight: number, unit: UnitSystem): string => {
   return `${weight} ${unit}`;
 };
+
+export const lbsToKg = (lbs: number): number => {
+  return Math.round((lbs * 0.453592) / 2.5) * 2.5;
+};
+
+export const kgToLbs = (kg: number): number => {
+  return Math.round((kg / 0.453592) / 5) * 5;
+};
+
+export const convertWeight = (weight: number, fromUnit: UnitSystem, toUnit: UnitSystem): number => {
+  if (fromUnit === toUnit) return weight;
+  if (fromUnit === 'lbs' && toUnit === 'kg') return lbsToKg(weight);
+  if (fromUnit === 'kg' && toUnit === 'lbs') return kgToLbs(weight);
+  return weight;
+};

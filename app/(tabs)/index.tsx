@@ -16,7 +16,7 @@ import {
 } from "../constants";
 import { styles } from "../styles";
 import { ExerciseKey, WorkoutExercise, WorkoutHistoryItem } from "../types";
-import { formatWeight } from "../utils";
+import { convertWeight, formatWeight } from "../utils";
 import { useWorkout } from "../WorkoutContext";
 
 const HomeApp: React.FC = () => {
@@ -104,30 +104,44 @@ const HomeApp: React.FC = () => {
             <View style={styles.historyList}>
               {workoutHistory.map(
                 (workout: WorkoutHistoryItem, index: number) => {
-                  const workoutUnit = workout.unit || unitSystem;
+                  const workoutUnit = workout.unit || "lbs";
+                  const displayBodyweight = workout.bodyweight
+                    ? convertWeight(workout.bodyweight, workoutUnit, unitSystem)
+                    : undefined;
+
                   return (
                     <View key={index} style={styles.historyItem}>
                       <View style={styles.historyItemHeader}>
                         <Text style={styles.historyWorkoutType}>
                           Workout {workout.type}
-                          {workout.bodyweight &&
-                            ` • ${workout.bodyweight} ${workoutUnit}`}
+                          {displayBodyweight &&
+                            ` • ${displayBodyweight} ${unitSystem}`}
                         </Text>
                         <Text style={styles.historyDate}>{workout.date}</Text>
                       </View>
                       <View style={styles.historyExercises}>
                         {workout.exercises.map(
-                          (exercise: WorkoutExercise, exIndex: number) => (
-                            <View key={exIndex} style={styles.historyExercise}>
-                              <Text style={styles.historyExerciseName}>
-                                {exercise.name}
-                              </Text>
-                              <Text style={styles.historyExerciseData}>
-                                {exercise.weight}
-                                {workoutUnit} × {exercise.sets.join(", ")}
-                              </Text>
-                            </View>
-                          )
+                          (exercise: WorkoutExercise, exIndex: number) => {
+                            const displayWeight = convertWeight(
+                              exercise.weight,
+                              workoutUnit,
+                              unitSystem
+                            );
+                            return (
+                              <View
+                                key={exIndex}
+                                style={styles.historyExercise}
+                              >
+                                <Text style={styles.historyExerciseName}>
+                                  {exercise.name}
+                                </Text>
+                                <Text style={styles.historyExerciseData}>
+                                  {displayWeight}
+                                  {unitSystem} × {exercise.sets.join(", ")}
+                                </Text>
+                              </View>
+                            );
+                          }
                         )}
                       </View>
                     </View>
