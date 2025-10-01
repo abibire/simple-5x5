@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "powerlifts-5x5",
-    "slug": "powerlifts-5x5",
+    "name": "simple-5x5",
+    "slug": "simple-5x5",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
