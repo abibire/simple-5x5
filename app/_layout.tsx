@@ -29,7 +29,7 @@ export default function RootLayout() {
           options={{ presentation: "modal", title: "Modal" }}
         />
       </Stack>
-      <StatusBar style="auto" backgroundColor="#2563eb" />
+      <StatusBar style="light" backgroundColor="#2563eb" />
     </ThemeProvider>
   );
 }

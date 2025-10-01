@@ -8,11 +8,16 @@
     "scheme": "powerlifts5x5",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "androidStatusBar": {
+         "barStyle": "light-content",
+         "backgroundColor": "#000000"
+      },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.absentee6836.powerlifts5x5",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIStatusBarStyle": "UIStatusBarStyleLightContent"
       }
     },
     "android": {
