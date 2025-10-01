@@ -49,4 +49,5 @@ export interface WorkoutHistoryItem {
   date: string;
   type: WorkoutType;
   exercises: WorkoutExercise[];
+  bodyweight?: number;
 }

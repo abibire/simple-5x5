@@ -104,6 +104,7 @@ const HomeApp: React.FC = () => {
                     <View style={styles.historyItemHeader}>
                       <Text style={styles.historyWorkoutType}>
                         Workout {workout.type}
+                        {workout.bodyweight && ` • ${workout.bodyweight} lbs`}
                       </Text>
                       <Text style={styles.historyDate}>{workout.date}</Text>
                     </View>

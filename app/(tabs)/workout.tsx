@@ -51,6 +51,9 @@ const StrongLifts5x5App: React.FC = () => {
     useState<boolean>(false);
   const [editingWeight, setEditingWeight] = useState<ExerciseKey | null>(null);
   const [weightInputValue, setWeightInputValue] = useState<string>("");
+  const [bodyweight, setBodyweight] = useState<string>("");
+  const [showBodyweightInput, setShowBodyweightInput] =
+    useState<boolean>(false);
 
   const appState = useRef(AppState.currentState);
   const isNative = Platform.OS !== "web";
@@ -63,15 +66,12 @@ const StrongLifts5x5App: React.FC = () => {
 
   useEffect(() => {
     if (!isNative) return;
-    const checkLastNotification = async () => {
-      const lastResponse = await Notifications.getLastNotificationResponse();
-      if (lastResponse?.actionIdentifier === "complete-set") {
-        await Notifications.dismissAllNotificationsAsync();
-        router.push("/(tabs)/workout");
-        completeNextSetAndRestart();
-      }
-    };
-    checkLastNotification();
+    const last = Notifications.getLastNotificationResponse();
+    if (last?.actionIdentifier === "complete-set") {
+      Notifications.dismissAllNotificationsAsync();
+      router.push("/(tabs)/workout");
+      completeNextSetAndRestart();
+    }
   }, [isNative]);
 
   useEffect(() => {
@@ -369,7 +369,8 @@ const StrongLifts5x5App: React.FC = () => {
         weight: weights[ex],
         sets: currentSession[ex].sets.map((reps) => Math.max(0, reps)),
         completed: isExerciseCompleted(ex)
-      }))
+      })),
+      bodyweight: bodyweight ? parseFloat(bodyweight) : undefined
     };
     setWorkoutHistory((prev) => [workout, ...prev]);
     setWeights(newWeights);
@@ -377,6 +378,7 @@ const StrongLifts5x5App: React.FC = () => {
     setExerciseDeloads(newDeloads);
     setCurrentSession(createDefaultSession());
     setCurrentWorkout(currentWorkout === "A" ? "B" : "A");
+    setBodyweight("");
     router.push("/");
   };
 
@@ -452,7 +454,44 @@ const StrongLifts5x5App: React.FC = () => {
             >
               <Text style={styles.presetButtonText}>5:00</Text>
             </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setShowBodyweightInput(!showBodyweightInput)}
+              style={[
+                styles.presetButton,
+                showBodyweightInput && { backgroundColor: "#2563eb" }
+              ]}
+            >
+              <Text
+                style={[
+                  styles.presetButtonText,
+                  showBodyweightInput && { color: "white" }
+                ]}
+              >
+                BW
+              </Text>
+            </TouchableOpacity>
           </View>
+          {showBodyweightInput && (
+            <View style={{ marginTop: 8 }}>
+              <TextInput
+                style={{
+                  backgroundColor: "white",
+                  borderWidth: 1,
+                  borderColor: "#d1d5db",
+                  borderRadius: 4,
+                  paddingHorizontal: 8,
+                  paddingVertical: 4,
+                  fontSize: 14,
+                  width: 120
+                }}
+                value={bodyweight}
+                onChangeText={setBodyweight}
+                keyboardType="numeric"
+                placeholder="Bodyweight (lbs)"
+                placeholderTextColor="#9ca3af"
+              />
+            </View>
+          )}
         </View>
         <View style={styles.workoutContainer}>
           {getCurrentExercises().map((exercise: ExerciseKey) => (
