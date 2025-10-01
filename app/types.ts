@@ -1,5 +1,6 @@
 export type WorkoutType = 'A' | 'B';
 export type ExerciseKey = 'squat' | 'bench' | 'row' | 'ohp' | 'deadlift';
+export type UnitSystem = 'lbs' | 'kg';
 
 export interface Weights {
   squat: number;
@@ -50,4 +51,5 @@ export interface WorkoutHistoryItem {
   type: WorkoutType;
   exercises: WorkoutExercise[];
   bodyweight?: number;
+  unit?: UnitSystem;
 }

@@ -10,6 +10,7 @@ import { defaultDeloads, defaultFailures, defaultWeights } from "./constants";
 import {
   ExerciseDeloads,
   ExerciseFailures,
+  UnitSystem,
   Weights,
   WorkoutHistoryItem
 } from "./types";
@@ -23,6 +24,8 @@ interface WorkoutContextType {
   setExerciseFailures: (failures: ExerciseFailures) => void;
   exerciseDeloads: ExerciseDeloads;
   setExerciseDeloads: (deloads: ExerciseDeloads) => void;
+  unitSystem: UnitSystem;
+  setUnitSystem: (unit: UnitSystem) => void;
   isLoading: boolean;
 }
 
@@ -32,11 +35,12 @@ const STORAGE_KEYS = {
   WEIGHTS: "stronglifts_weights",
   WORKOUT_HISTORY: "stronglifts_workout_history",
   EXERCISE_FAILURES: "stronglifts_exercise_failures",
-  EXERCISE_DELOADS: "stronglifts_exercise_deloads"
+  EXERCISE_DELOADS: "stronglifts_exercise_deloads",
+  UNIT_SYSTEM: "stronglifts_unit_system"
 };
 
 export function WorkoutProvider({ children }: { children: ReactNode }) {
-  const [weights, setWeightsState] = useState<Weights>(defaultWeights);
+  const [weights, setWeightsState] = useState<Weights>(defaultWeights.lbs);
   const [workoutHistory, setWorkoutHistoryState] = useState<
     WorkoutHistoryItem[]
   >([]);
@@ -44,6 +48,7 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
     useState<ExerciseFailures>(defaultFailures);
   const [exerciseDeloads, setExerciseDeloadsState] =
     useState<ExerciseDeloads>(defaultDeloads);
+  const [unitSystem, setUnitSystemState] = useState<UnitSystem>("lbs");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -52,13 +57,24 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
 
   const loadData = async () => {
     try {
-      const [savedWeights, savedHistory, savedFailures, savedDeloads] =
-        await Promise.all([
-          AsyncStorage.getItem(STORAGE_KEYS.WEIGHTS),
-          AsyncStorage.getItem(STORAGE_KEYS.WORKOUT_HISTORY),
-          AsyncStorage.getItem(STORAGE_KEYS.EXERCISE_FAILURES),
-          AsyncStorage.getItem(STORAGE_KEYS.EXERCISE_DELOADS)
-        ]);
+      const [
+        savedWeights,
+        savedHistory,
+        savedFailures,
+        savedDeloads,
+        savedUnitSystem
+      ] = await Promise.all([
+        AsyncStorage.getItem(STORAGE_KEYS.WEIGHTS),
+        AsyncStorage.getItem(STORAGE_KEYS.WORKOUT_HISTORY),
+        AsyncStorage.getItem(STORAGE_KEYS.EXERCISE_FAILURES),
+        AsyncStorage.getItem(STORAGE_KEYS.EXERCISE_DELOADS),
+        AsyncStorage.getItem(STORAGE_KEYS.UNIT_SYSTEM)
+      ]);
+
+      if (savedUnitSystem) {
+        const parsedUnit = JSON.parse(savedUnitSystem) as UnitSystem;
+        setUnitSystemState(parsedUnit);
+      }
 
       if (savedWeights) {
         const parsedWeights = JSON.parse(savedWeights);
@@ -125,6 +141,19 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const setUnitSystem = async (newUnit: UnitSystem) => {
+    try {
+      await AsyncStorage.setItem(
+        STORAGE_KEYS.UNIT_SYSTEM,
+        JSON.stringify(newUnit)
+      );
+      setUnitSystemState(newUnit);
+    } catch (error) {
+      console.error("Failed to save unit system:", error);
+      setUnitSystemState(newUnit);
+    }
+  };
+
   const setWorkoutHistory = (
     updateFn: React.SetStateAction<WorkoutHistoryItem[]>
   ) => {
@@ -154,6 +183,8 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         setExerciseFailures,
         exerciseDeloads,
         setExerciseDeloads,
+        unitSystem,
+        setUnitSystem,
         isLoading
       }}
     >

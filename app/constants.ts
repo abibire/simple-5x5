@@ -1,4 +1,4 @@
-import { CurrentSession, ExerciseDeloads, ExerciseFailures, ExerciseKey, Weights, WorkoutType } from './types';
+import { CurrentSession, ExerciseDeloads, ExerciseFailures, ExerciseKey, UnitSystem, Weights, WorkoutType } from './types';
 
 export const workouts: Record<WorkoutType, ExerciseKey[]> = {
   A: ['squat', 'bench', 'row'],
@@ -13,12 +13,21 @@ export const exerciseNames: Record<ExerciseKey, string> = {
   deadlift: 'Deadlift'
 };
 
-export const defaultWeights: Weights = {
-  squat: 45,
-  bench: 45,
-  row: 65,
-  ohp: 45,
-  deadlift: 95
+export const defaultWeights: Record<UnitSystem, Weights> = {
+  lbs: {
+    squat: 45,
+    bench: 45,
+    row: 65,
+    ohp: 45,
+    deadlift: 95
+  },
+  kg: {
+    squat: 20,
+    bench: 20,
+    row: 30,
+    ohp: 20,
+    deadlift: 40
+  }
 };
 
 export const defaultFailures: ExerciseFailures = {
@@ -45,12 +54,26 @@ export const createDefaultSession = (): CurrentSession => ({
   deadlift: { sets: [-1, -1, -1, -1, -1], completed: false }
 });
 
-export const PROGRESSION_INCREMENTS = {
-  squat: 5,
-  bench: 5,
-  row: 5,
-  ohp: 5,
-  deadlift: 10
+export const PROGRESSION_INCREMENTS: Record<UnitSystem, Record<ExerciseKey, number>> = {
+  lbs: {
+    squat: 5,
+    bench: 5,
+    row: 5,
+    ohp: 5,
+    deadlift: 10
+  },
+  kg: {
+    squat: 2.5,
+    bench: 2.5,
+    row: 2.5,
+    ohp: 2.5,
+    deadlift: 5
+  }
+};
+
+export const MINIMUM_INCREMENT: Record<UnitSystem, number> = {
+  lbs: 5,
+  kg: 2.5
 };
 
 export const TARGET_REPS = {

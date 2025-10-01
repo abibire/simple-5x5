@@ -18,13 +18,19 @@ import {
   DELOAD_PERCENTAGE,
   exerciseNames,
   MAX_FAILURES_BEFORE_DELOAD,
+  MINIMUM_INCREMENT,
   PROGRESSION_INCREMENTS,
   TARGET_REPS,
   workouts
 } from "../constants";
 import { styles } from "../styles";
 import { CurrentSession, ExerciseKey, WorkoutType } from "../types";
-import { formatTime, getRepButtonStyle, getRepButtonTextStyle } from "../utils";
+import {
+  formatTime,
+  formatWeight,
+  getRepButtonStyle,
+  getRepButtonTextStyle
+} from "../utils";
 import { useWorkout } from "../WorkoutContext";
 
 const StrongLifts5x5App: React.FC = () => {
@@ -35,7 +41,8 @@ const StrongLifts5x5App: React.FC = () => {
     exerciseFailures,
     setExerciseFailures,
     exerciseDeloads,
-    setExerciseDeloads
+    setExerciseDeloads,
+    unitSystem
   } = useWorkout();
 
   const [currentWorkout, setCurrentWorkout] = useState<WorkoutType>("A");
@@ -243,6 +250,11 @@ const StrongLifts5x5App: React.FC = () => {
     });
   };
 
+  const roundWeight = (weight: number): number => {
+    const increment = MINIMUM_INCREMENT[unitSystem];
+    return Math.round(weight / increment) * increment;
+  };
+
   const checkForDeloads = (): void => {
     if (hasShownDeloadAlert) return;
     const exercises = workouts[currentWorkout];
@@ -257,8 +269,8 @@ const StrongLifts5x5App: React.FC = () => {
         const deloadAmount = oldWeight * DELOAD_PERCENTAGE;
         const rawNewWeight = oldWeight - deloadAmount;
         const newWeight = Math.max(
-          PROGRESSION_INCREMENTS[exercise],
-          Math.round(rawNewWeight / 5) * 5
+          PROGRESSION_INCREMENTS[unitSystem][exercise],
+          roundWeight(rawNewWeight)
         );
         exercisesToDeload.push({
           exercise,
@@ -272,7 +284,10 @@ const StrongLifts5x5App: React.FC = () => {
       const deloadText = exercisesToDeload
         .map(
           ({ exercise, oldWeight, newWeight }) =>
-            `${exerciseNames[exercise]}: ${oldWeight}lbs → ${newWeight}lbs`
+            `${exerciseNames[exercise]}: ${formatWeight(
+              oldWeight,
+              unitSystem
+            )} → ${formatWeight(newWeight, unitSystem)}`
         )
         .join("\n");
       Alert.alert(
@@ -356,7 +371,9 @@ const StrongLifts5x5App: React.FC = () => {
       const completed = isExerciseCompleted(exercise);
       if (completed) {
         newFailures[exercise] = 0;
-        newWeights[exercise] += PROGRESSION_INCREMENTS[exercise];
+        newWeights[exercise] = roundWeight(
+          newWeights[exercise] + PROGRESSION_INCREMENTS[unitSystem][exercise]
+        );
       } else {
         newFailures[exercise] += 1;
       }
@@ -370,7 +387,8 @@ const StrongLifts5x5App: React.FC = () => {
         sets: currentSession[ex].sets.map((reps) => Math.max(0, reps)),
         completed: isExerciseCompleted(ex)
       })),
-      bodyweight: bodyweight ? parseFloat(bodyweight) : undefined
+      bodyweight: bodyweight ? parseFloat(bodyweight) : undefined,
+      unit: unitSystem
     };
     setWorkoutHistory((prev) => [workout, ...prev]);
     setWeights(newWeights);
@@ -379,6 +397,7 @@ const StrongLifts5x5App: React.FC = () => {
     setCurrentSession(createDefaultSession());
     setCurrentWorkout(currentWorkout === "A" ? "B" : "A");
     setBodyweight("");
+    setShowBodyweightInput(false);
     router.push("/");
   };
 
@@ -403,10 +422,10 @@ const StrongLifts5x5App: React.FC = () => {
 
   const confirmWeightEdit = (): void => {
     if (editingWeight) {
-      const newWeight = parseInt(weightInputValue);
+      const newWeight = parseFloat(weightInputValue);
       if (!isNaN(newWeight) && newWeight > 0) {
         const newWeights = { ...weights };
-        newWeights[editingWeight] = newWeight;
+        newWeights[editingWeight] = roundWeight(newWeight);
         setWeights(newWeights);
       }
       setEditingWeight(null);
@@ -487,7 +506,7 @@ const StrongLifts5x5App: React.FC = () => {
                 value={bodyweight}
                 onChangeText={setBodyweight}
                 keyboardType="numeric"
-                placeholder="Bodyweight (lbs)"
+                placeholder={`Bodyweight (${unitSystem})`}
                 placeholderTextColor="#9ca3af"
               />
             </View>
@@ -511,7 +530,7 @@ const StrongLifts5x5App: React.FC = () => {
                       autoFocus
                       onSubmitEditing={confirmWeightEdit}
                     />
-                    <Text style={styles.exerciseWeight}>lbs</Text>
+                    <Text style={styles.exerciseWeight}>{unitSystem}</Text>
                     <TouchableOpacity
                       onPress={confirmWeightEdit}
                       style={[
@@ -536,7 +555,7 @@ const StrongLifts5x5App: React.FC = () => {
                     onPress={() => startEditingWeight(exercise)}
                   >
                     <Text style={styles.exerciseWeightClickable}>
-                      {weights[exercise]} lbs
+                      {formatWeight(weights[exercise], unitSystem)}
                     </Text>
                   </TouchableOpacity>
                 )}

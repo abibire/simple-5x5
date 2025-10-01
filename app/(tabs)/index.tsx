@@ -16,6 +16,7 @@ import {
 } from "../constants";
 import { styles } from "../styles";
 import { ExerciseKey, WorkoutExercise, WorkoutHistoryItem } from "../types";
+import { formatWeight } from "../utils";
 import { useWorkout } from "../WorkoutContext";
 
 const HomeApp: React.FC = () => {
@@ -26,6 +27,7 @@ const HomeApp: React.FC = () => {
     setWeights,
     setExerciseFailures,
     setExerciseDeloads,
+    unitSystem,
     isLoading
   } = useWorkout();
 
@@ -43,7 +45,7 @@ const HomeApp: React.FC = () => {
           style: "destructive",
           onPress: () => {
             setWorkoutHistory([]);
-            setWeights(defaultWeights);
+            setWeights(defaultWeights[unitSystem]);
             setExerciseFailures(defaultFailures);
             setExerciseDeloads(defaultDeloads);
           }
@@ -83,7 +85,9 @@ const HomeApp: React.FC = () => {
               ([key, name]) => (
                 <View key={key} style={styles.weightItem}>
                   <Text style={styles.weightName}>{name}</Text>
-                  <Text style={styles.weightValue}>{weights[key]} lbs</Text>
+                  <Text style={styles.weightValue}>
+                    {formatWeight(weights[key], unitSystem)}
+                  </Text>
                 </View>
               )
             )}
@@ -99,31 +103,36 @@ const HomeApp: React.FC = () => {
             </View>
             <View style={styles.historyList}>
               {workoutHistory.map(
-                (workout: WorkoutHistoryItem, index: number) => (
-                  <View key={index} style={styles.historyItem}>
-                    <View style={styles.historyItemHeader}>
-                      <Text style={styles.historyWorkoutType}>
-                        Workout {workout.type}
-                        {workout.bodyweight && ` • ${workout.bodyweight} lbs`}
-                      </Text>
-                      <Text style={styles.historyDate}>{workout.date}</Text>
+                (workout: WorkoutHistoryItem, index: number) => {
+                  const workoutUnit = workout.unit || unitSystem;
+                  return (
+                    <View key={index} style={styles.historyItem}>
+                      <View style={styles.historyItemHeader}>
+                        <Text style={styles.historyWorkoutType}>
+                          Workout {workout.type}
+                          {workout.bodyweight &&
+                            ` • ${workout.bodyweight} ${workoutUnit}`}
+                        </Text>
+                        <Text style={styles.historyDate}>{workout.date}</Text>
+                      </View>
+                      <View style={styles.historyExercises}>
+                        {workout.exercises.map(
+                          (exercise: WorkoutExercise, exIndex: number) => (
+                            <View key={exIndex} style={styles.historyExercise}>
+                              <Text style={styles.historyExerciseName}>
+                                {exercise.name}
+                              </Text>
+                              <Text style={styles.historyExerciseData}>
+                                {exercise.weight}
+                                {workoutUnit} × {exercise.sets.join(", ")}
+                              </Text>
+                            </View>
+                          )
+                        )}
+                      </View>
                     </View>
-                    <View style={styles.historyExercises}>
-                      {workout.exercises.map(
-                        (exercise: WorkoutExercise, exIndex: number) => (
-                          <View key={exIndex} style={styles.historyExercise}>
-                            <Text style={styles.historyExerciseName}>
-                              {exercise.name}
-                            </Text>
-                            <Text style={styles.historyExerciseData}>
-                              {exercise.weight}lbs × {exercise.sets.join(", ")}
-                            </Text>
-                          </View>
-                        )
-                      )}
-                    </View>
-                  </View>
-                )
+                  );
+                }
               )}
             </View>
           </View>
