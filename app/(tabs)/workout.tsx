@@ -63,14 +63,15 @@ const StrongLifts5x5App: React.FC = () => {
 
   useEffect(() => {
     if (!isNative) return;
-    const getLast = (Notifications as any).getLastNotificationResponse;
-    const last =
-      typeof getLast === "function" ? getLast.call(Notifications) : null;
-    if (last?.actionIdentifier === "complete-set") {
-      Notifications.dismissAllNotificationsAsync();
-      router.push("/(tabs)/workout");
-      completeNextSetAndRestart();
-    }
+    const checkLastNotification = async () => {
+      const lastResponse = await Notifications.getLastNotificationResponse();
+      if (lastResponse?.actionIdentifier === "complete-set") {
+        await Notifications.dismissAllNotificationsAsync();
+        router.push("/(tabs)/workout");
+        completeNextSetAndRestart();
+      }
+    };
+    checkLastNotification();
   }, [isNative]);
 
   useEffect(() => {
