@@ -83,11 +83,6 @@ export const styles = StyleSheet.create({
     textDecorationColor: '#2563eb',
     textDecorationStyle: 'solid',
   },
-  exerciseDescription: {
-    fontSize: 12,
-    color: '#6b7280',
-    marginBottom: 8,
-  },
   weightEditContainer: {
     flexDirection: 'row',
     alignItems: 'center',

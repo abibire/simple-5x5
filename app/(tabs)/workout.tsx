@@ -497,24 +497,42 @@ const StrongLifts5x5App: React.FC = () => {
             </TouchableOpacity>
           </View>
           {showBodyweightInput && (
-            <View style={{ marginTop: 8 }}>
-              <TextInput
-                style={{
-                  backgroundColor: "white",
-                  borderWidth: 1,
-                  borderColor: "#d1d5db",
-                  borderRadius: 4,
-                  paddingHorizontal: 8,
-                  paddingVertical: 4,
-                  fontSize: 14,
-                  width: 120
-                }}
-                value={bodyweight}
-                onChangeText={setBodyweight}
-                keyboardType="numeric"
-                placeholder={`Bodyweight (${unitSystem})`}
-                placeholderTextColor="#9ca3af"
-              />
+            <View style={{ marginTop: 12 }}>
+              <Text style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}>
+                Bodyweight
+              </Text>
+              <View style={styles.weightEditContainer}>
+                <TextInput
+                  style={styles.weightInput}
+                  value={bodyweight}
+                  onChangeText={setBodyweight}
+                  keyboardType="numeric"
+                  placeholder="0"
+                  placeholderTextColor="#9ca3af"
+                />
+                <Text style={styles.exerciseWeight}>{unitSystem}</Text>
+                <TouchableOpacity
+                  onPress={() => setShowBodyweightInput(false)}
+                  style={[
+                    styles.weightEditButton,
+                    styles.weightEditButtonConfirm
+                  ]}
+                >
+                  <Text style={styles.weightEditButtonText}>✓</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    setBodyweight("");
+                    setShowBodyweightInput(false);
+                  }}
+                  style={[
+                    styles.weightEditButton,
+                    styles.weightEditButtonCancel
+                  ]}
+                >
+                  <Text style={styles.weightEditButtonText}>✕</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           )}
         </View>
@@ -588,9 +606,6 @@ const StrongLifts5x5App: React.FC = () => {
                   </View>
                 )}
               </View>
-              <Text style={styles.exerciseDescription}>
-                {exercise === "deadlift" ? "1 set × 5 reps" : "5 sets × 5 reps"}
-              </Text>
               <View style={styles.setsContainer}>
                 {currentSession[exercise].sets.map(
                   (reps: number, setIndex: number) => {
