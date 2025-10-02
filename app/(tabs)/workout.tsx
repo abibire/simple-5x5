@@ -1,3 +1,5 @@
+import PlateCalculator from "@/components/PlateCalculator";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Notifications from "expo-notifications";
 import { router } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
@@ -61,6 +63,10 @@ const StrongLifts5x5App: React.FC = () => {
   const [bodyweight, setBodyweight] = useState<string>("");
   const [showBodyweightInput, setShowBodyweightInput] =
     useState<boolean>(false);
+  const [showWeightModal, setShowWeightModal] = useState<boolean>(false);
+  const [selectedExercise, setSelectedExercise] = useState<ExerciseKey | null>(
+    null
+  );
 
   const appState = useRef(AppState.currentState);
   const isNative = Platform.OS !== "web";
@@ -551,13 +557,35 @@ const StrongLifts5x5App: React.FC = () => {
                     </TouchableOpacity>
                   </View>
                 ) : (
-                  <TouchableOpacity
-                    onPress={() => startEditingWeight(exercise)}
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 8
+                    }}
                   >
-                    <Text style={styles.exerciseWeightClickable}>
-                      {formatWeight(weights[exercise], unitSystem)}
-                    </Text>
-                  </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setSelectedExercise(exercise);
+                        setShowWeightModal(true);
+                      }}
+                      activeOpacity={0.6}
+                    >
+                      <MaterialCommunityIcons
+                        name="weight"
+                        size={20}
+                        color="#2563eb"
+                      />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => startEditingWeight(exercise)}
+                      activeOpacity={0.6}
+                    >
+                      <Text style={styles.exerciseWeightClickable}>
+                        {formatWeight(weights[exercise], unitSystem)}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
                 )}
               </View>
               <Text style={styles.exerciseDescription}>
@@ -600,6 +628,13 @@ const StrongLifts5x5App: React.FC = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      <PlateCalculator
+        visible={showWeightModal}
+        onClose={() => setShowWeightModal(false)}
+        weight={selectedExercise ? weights[selectedExercise] : 0}
+        unitSystem={unitSystem}
+        exerciseName={selectedExercise ? exerciseNames[selectedExercise] : ""}
+      />
     </SafeAreaView>
   );
 };
