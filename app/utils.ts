@@ -22,11 +22,13 @@ export const formatWeight = (weight: number, unit: UnitSystem): string => {
 };
 
 export const lbsToKg = (lbs: number): number => {
-  return Math.round((lbs * 0.453592) / 2.5) * 2.5;
+  const kg = lbs * 0.453592;
+  return Math.round(kg / 2.5) * 2.5;
 };
 
 export const kgToLbs = (kg: number): number => {
-  return Math.round((kg / 0.453592) / 5) * 5;
+  const lbs = kg / 0.453592;
+  return Math.round(lbs / 5) * 5;
 };
 
 export const convertWeight = (weight: number, fromUnit: UnitSystem, toUnit: UnitSystem): number => {
