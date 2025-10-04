@@ -1,4 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import Octicons from "@expo/vector-icons/Octicons";
 import {
   Alert,
   ScrollView,
@@ -79,6 +80,9 @@ const HomeApp: React.FC = () => {
         <View style={styles.weightsContainer}>
           <View style={styles.weightsHeader}>
             <Text style={styles.weightsTitle}>📈 Current Weights</Text>
+            <TouchableOpacity onPress={confirmDeleteHistory}>
+              <MaterialCommunityIcons name="delete" size={24} color="red" />
+            </TouchableOpacity>
           </View>
           <View style={styles.weightsList}>
             {(Object.entries(exerciseNames) as [ExerciseKey, string][]).map(
@@ -96,10 +100,8 @@ const HomeApp: React.FC = () => {
         {workoutHistory.length > 0 && (
           <View style={styles.historyContainer}>
             <View style={styles.historyHeader}>
-              <Text style={styles.historyTitle}>📅 Recent Workouts</Text>
-              <TouchableOpacity onPress={confirmDeleteHistory}>
-                <MaterialCommunityIcons name="delete" size={24} color="red" />
-              </TouchableOpacity>
+              <Text style={styles.historyTitle}>Recent Workouts</Text>
+              <Octicons name="graph" size={24} color="#2563eb" />
             </View>
             <View style={styles.historyList}>
               {workoutHistory.map(

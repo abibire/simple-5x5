@@ -1,105 +1,105 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#2563eb',
+    backgroundColor: "#2563eb"
   },
   scrollView: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: "#f9fafb"
   },
   header: {
-    backgroundColor: '#2563eb',
-    padding: 16,
+    backgroundColor: "#2563eb",
+    padding: 16
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
+    fontWeight: "bold",
+    color: "white"
   },
   headerSubtitle: {
     fontSize: 14,
-    color: '#dbeafe',
+    color: "#dbeafe"
   },
   timerContainer: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: "#e5e7eb"
   },
   timerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center"
   },
   timerText: {
     fontSize: 32,
-    fontWeight: 'bold',
-    fontFamily: 'monospace',
+    fontWeight: "bold",
+    fontFamily: "monospace"
   },
   presetButtons: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 8,
-    marginTop: 8,
+    marginTop: 8
   },
   presetButton: {
-    backgroundColor: '#e5e7eb',
+    backgroundColor: "#e5e7eb",
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 4,
+    borderRadius: 4
   },
   presetButtonText: {
-    fontSize: 12,
+    fontSize: 12
   },
   workoutContainer: {
-    backgroundColor: 'white',
+    backgroundColor: "white"
   },
   exerciseContainer: {
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: "#e5e7eb"
   },
   exerciseHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12
   },
   exerciseName: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600"
   },
   exerciseWeight: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#2563eb',
+    fontWeight: "bold",
+    color: "#2563eb"
   },
   exerciseWeightClickable: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#2563eb',
-    textDecorationLine: 'underline',
-    textDecorationColor: '#2563eb',
-    textDecorationStyle: 'solid',
+    fontWeight: "bold",
+    color: "#2563eb",
+    textDecorationLine: "underline",
+    textDecorationColor: "#2563eb",
+    textDecorationStyle: "solid"
   },
   weightEditContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8
   },
   weightInput: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderWidth: 1,
-    borderColor: '#d1d5db',
+    borderColor: "#d1d5db",
     borderRadius: 4,
     paddingHorizontal: 8,
     paddingVertical: 4,
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#2563eb',
+    fontWeight: "bold",
+    color: "#2563eb",
     minWidth: 60,
-    textAlign: 'center',
+    textAlign: "center"
   },
   weightEditButton: {
     paddingHorizontal: 8,
@@ -107,158 +107,161 @@ export const styles = StyleSheet.create({
     borderRadius: 4,
     minWidth: 28,
     minHeight: 28,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center"
   },
   weightEditButtonConfirm: {
-    backgroundColor: '#10b981',
+    backgroundColor: "#10b981"
   },
   weightEditButtonCancel: {
-    backgroundColor: '#ef4444',
+    backgroundColor: "#ef4444"
   },
   weightEditButtonText: {
-    color: 'white',
+    color: "white",
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold"
   },
   setsContainer: {
-    flexDirection: 'row',
-    gap: 8,
+    flexDirection: "row",
+    gap: 8
   },
   setContainer: {
-    alignItems: 'center',
+    alignItems: "center"
   },
   setLabel: {
     fontSize: 10,
-    color: '#6b7280',
-    marginBottom: 4,
+    color: "#6b7280",
+    marginBottom: 4
   },
   repButton: {
     width: 48,
     height: 48,
     borderRadius: 4,
     borderWidth: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center"
   },
   repButtonEmpty: {
-    backgroundColor: '#f3f4f6',
-    borderColor: '#d1d5db',
+    backgroundColor: "#f3f4f6",
+    borderColor: "#d1d5db"
   },
   repButtonComplete: {
-    backgroundColor: '#2563eb',
-    borderColor: '#2563eb',
+    backgroundColor: "#2563eb",
+    borderColor: "#2563eb"
   },
   repButtonText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold"
   },
   repButtonTextEmpty: {
-    color: '#9ca3af',
+    color: "#9ca3af"
   },
   repButtonTextComplete: {
-    color: 'white',
+    color: "white"
   },
   completeButtonContainer: {
-    padding: 16,
+    padding: 16
   },
   completeButton: {
-    backgroundColor: '#2563eb',
+    backgroundColor: "#2563eb",
     paddingVertical: 12,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center"
   },
   completeButtonText: {
-    color: 'white',
+    color: "white",
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600"
   },
   historyContainer: {
-    backgroundColor: 'white',
+    backgroundColor: "white"
   },
   historyHeader: {
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-    backgroundColor: '#f9fafb',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    borderBottomColor: "#e5e7eb",
+    backgroundColor: "#f9fafb",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center"
   },
   historyTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600"
   },
   historyList: {
-    backgroundColor: 'white',
+    backgroundColor: "white"
   },
   historyItem: {
     padding: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: "#e5e7eb"
   },
   historyItemHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8
   },
   historyWorkoutType: {
-    fontWeight: '600',
+    fontWeight: "600"
   },
   historyDate: {
     fontSize: 12,
-    color: '#6b7280',
+    color: "#6b7280"
   },
   historyExercises: {
-    gap: 4,
+    gap: 4
   },
   historyExercise: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between"
   },
   historyExerciseName: {
-    fontSize: 12,
+    fontSize: 12
   },
   historyExerciseData: {
-    fontSize: 12,
+    fontSize: 12
   },
   weightsContainer: {
-    backgroundColor: 'white',
+    backgroundColor: "white"
   },
   weightsHeader: {
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
-    backgroundColor: '#f9fafb',
+    borderBottomColor: "#e5e7eb",
+    backgroundColor: "#f9fafb",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center"
   },
   weightsTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600"
   },
   weightsList: {
     padding: 16,
-    gap: 8,
+    gap: 8
   },
   weightItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between"
   },
   weightName: {
-    fontSize: 14,
+    fontSize: 14
   },
   weightValue: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold"
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f9fafb',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f9fafb"
   },
   homeContainer: {
     flex: 1,
-    backgroundColor: '#f9fafb',
-  },
+    backgroundColor: "#f9fafb"
+  }
 });
