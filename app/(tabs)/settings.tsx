@@ -8,9 +8,10 @@ import {
   View
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { useWorkout } from "../WorkoutContext";
-import { styles } from "../styles";
+import { useTheme } from "../ThemeContext";
+import { createThemedStyles } from "../themedStyles";
 import { ExerciseKey, UnitSystem } from "../types";
+import { useWorkout } from "../WorkoutContext";
 
 const lbsToKg = (lbs: number): number => {
   return Math.round((lbs * 0.453592) / 1.25) * 1.25;
@@ -22,6 +23,8 @@ const kgToLbs = (kg: number): number => {
 
 const SettingsApp: React.FC = () => {
   const { unitSystem, setUnitSystem, weights, setWeights } = useWorkout();
+  const { theme, themeMode, setThemeMode, isDark } = useTheme();
+  const styles = createThemedStyles(theme);
 
   const handleUnitChange = (newUnit: UnitSystem) => {
     if (newUnit === unitSystem) return;
@@ -63,12 +66,103 @@ const SettingsApp: React.FC = () => {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#f9fafb" }}>
+    <View style={{ flex: 1, backgroundColor: theme.background }}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Settings</Text>
         <Text style={styles.headerSubtitle}>Preferences</Text>
       </View>
       <ScrollView style={styles.scrollView}>
+        <View style={styles.weightsContainer}>
+          <View style={styles.weightsHeader}>
+            <Text style={styles.weightsTitle}>Theme</Text>
+          </View>
+          <View style={{ padding: 16 }}>
+            <View style={{ flexDirection: "row", gap: 12 }}>
+              <TouchableOpacity
+                onPress={() => setThemeMode("light")}
+                style={{
+                  flex: 1,
+                  backgroundColor:
+                    themeMode === "light"
+                      ? theme.primary
+                      : theme.surfaceSecondary,
+                  padding: 16,
+                  borderRadius: 8,
+                  alignItems: "center"
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: "600",
+                    color: themeMode === "light" ? "white" : theme.text
+                  }}
+                >
+                  Light
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setThemeMode("dark")}
+                style={{
+                  flex: 1,
+                  backgroundColor:
+                    themeMode === "dark"
+                      ? theme.primary
+                      : theme.surfaceSecondary,
+                  padding: 16,
+                  borderRadius: 8,
+                  alignItems: "center"
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: "600",
+                    color: themeMode === "dark" ? "white" : theme.text
+                  }}
+                >
+                  Dark
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setThemeMode("system")}
+                style={{
+                  flex: 1,
+                  backgroundColor:
+                    themeMode === "system"
+                      ? theme.primary
+                      : theme.surfaceSecondary,
+                  padding: 16,
+                  borderRadius: 8,
+                  alignItems: "center"
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: "600",
+                    color: themeMode === "system" ? "white" : theme.text
+                  }}
+                >
+                  System
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <Text
+              style={{
+                marginTop: 12,
+                fontSize: 12,
+                color: theme.textSecondary,
+                textAlign: "center"
+              }}
+            >
+              {themeMode === "system"
+                ? `Following system (currently ${isDark ? "dark" : "light"})`
+                : `Theme set to ${themeMode}`}
+            </Text>
+          </View>
+        </View>
+
         <View style={styles.weightsContainer}>
           <View style={styles.weightsHeader}>
             <Text style={styles.weightsTitle}>Unit System</Text>
@@ -79,7 +173,10 @@ const SettingsApp: React.FC = () => {
                 onPress={() => handleUnitChange("lbs")}
                 style={{
                   flex: 1,
-                  backgroundColor: unitSystem === "lbs" ? "#2563eb" : "#e5e7eb",
+                  backgroundColor:
+                    unitSystem === "lbs"
+                      ? theme.primary
+                      : theme.surfaceSecondary,
                   padding: 16,
                   borderRadius: 8,
                   alignItems: "center"
@@ -89,7 +186,7 @@ const SettingsApp: React.FC = () => {
                   style={{
                     fontSize: 18,
                     fontWeight: "600",
-                    color: unitSystem === "lbs" ? "white" : "#374151"
+                    color: unitSystem === "lbs" ? "white" : theme.text
                   }}
                 >
                   Pounds (lbs)
@@ -99,7 +196,10 @@ const SettingsApp: React.FC = () => {
                 onPress={() => handleUnitChange("kg")}
                 style={{
                   flex: 1,
-                  backgroundColor: unitSystem === "kg" ? "#2563eb" : "#e5e7eb",
+                  backgroundColor:
+                    unitSystem === "kg"
+                      ? theme.primary
+                      : theme.surfaceSecondary,
                   padding: 16,
                   borderRadius: 8,
                   alignItems: "center"
@@ -109,7 +209,7 @@ const SettingsApp: React.FC = () => {
                   style={{
                     fontSize: 18,
                     fontWeight: "600",
-                    color: unitSystem === "kg" ? "white" : "#374151"
+                    color: unitSystem === "kg" ? "white" : theme.text
                   }}
                 >
                   Kilograms (kg)
@@ -120,7 +220,7 @@ const SettingsApp: React.FC = () => {
               style={{
                 marginTop: 12,
                 fontSize: 12,
-                color: "#6b7280",
+                color: theme.textSecondary,
                 textAlign: "center"
               }}
             >
@@ -134,12 +234,14 @@ const SettingsApp: React.FC = () => {
 };
 
 const SettingsScreen: React.FC = () => {
+  const { theme, isDark } = useTheme();
+
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#2563eb" }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: theme.primary }}>
         <StatusBar
-          barStyle="light-content"
-          backgroundColor="#2563eb"
+          barStyle={isDark ? "light-content" : "light-content"}
+          backgroundColor={theme.primary}
           translucent={false}
         />
         <SettingsApp />

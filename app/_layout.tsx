@@ -2,6 +2,7 @@ import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
+import { ThemeProvider as AppThemeProvider } from "./ThemeContext";
 import { WorkoutProvider } from "./WorkoutContext";
 
 export const unstable_settings = {
@@ -22,24 +23,26 @@ const lightTheme = {
 
 export default function RootLayout() {
   return (
-    <WorkoutProvider>
-      <ThemeProvider value={lightTheme}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="progress"
-            options={{
-              presentation: "card",
-              headerShown: false
-            }}
-          />
-          <Stack.Screen
-            name="modal"
-            options={{ presentation: "modal", title: "Modal" }}
-          />
-        </Stack>
-        <StatusBar style="light" backgroundColor="#2563eb" />
-      </ThemeProvider>
-    </WorkoutProvider>
+    <AppThemeProvider>
+      <WorkoutProvider>
+        <ThemeProvider value={lightTheme}>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="progress"
+              options={{
+                presentation: "card",
+                headerShown: false
+              }}
+            />
+            <Stack.Screen
+              name="modal"
+              options={{ presentation: "modal", title: "Modal" }}
+            />
+          </Stack>
+          <StatusBar style="light" backgroundColor="#2563eb" />
+        </ThemeProvider>
+      </WorkoutProvider>
+    </AppThemeProvider>
   );
 }

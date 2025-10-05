@@ -16,7 +16,8 @@ import {
   defaultWeights,
   exerciseNames
 } from "../constants";
-import { styles } from "../styles";
+import { useTheme } from "../ThemeContext";
+import { createThemedStyles } from "../themedStyles";
 import { ExerciseKey, WorkoutExercise, WorkoutHistoryItem } from "../types";
 import { convertWeight, formatWeight } from "../utils";
 import { useWorkout } from "../WorkoutContext";
@@ -32,6 +33,9 @@ const HomeApp: React.FC = () => {
     unitSystem,
     isLoading
   } = useWorkout();
+
+  const { theme, isDark } = useTheme();
+  const styles = createThemedStyles(theme);
 
   const confirmDeleteHistory = (): void => {
     Alert.alert(
@@ -58,21 +62,14 @@ const HomeApp: React.FC = () => {
 
   if (isLoading) {
     return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: "#f9fafb"
-        }}
-      >
-        <Text>Loading...</Text>
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>Loading...</Text>
       </View>
     );
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#f9fafb" }}>
+    <View style={{ flex: 1, backgroundColor: theme.background }}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Simple 5×5</Text>
         <Text style={styles.headerSubtitle}>Workout log</Text>
@@ -82,7 +79,11 @@ const HomeApp: React.FC = () => {
           <View style={styles.weightsHeader}>
             <Text style={styles.weightsTitle}>📈 Current Weights</Text>
             <TouchableOpacity onPress={confirmDeleteHistory}>
-              <MaterialCommunityIcons name="delete" size={24} color="red" />
+              <MaterialCommunityIcons
+                name="delete"
+                size={24}
+                color={theme.error}
+              />
             </TouchableOpacity>
           </View>
           <View style={styles.weightsList}>
@@ -106,7 +107,7 @@ const HomeApp: React.FC = () => {
                 onPress={() => router.push("/progress")}
                 activeOpacity={0.6}
               >
-                <Octicons name="graph" size={24} color="#2563eb" />
+                <Octicons name="graph" size={24} color={theme.primary} />
               </TouchableOpacity>
             </View>
             <View style={styles.historyList}>
@@ -165,12 +166,14 @@ const HomeApp: React.FC = () => {
 };
 
 const HomeScreen: React.FC = () => {
+  const { theme, isDark } = useTheme();
+
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1, backgroundColor: "#2563eb" }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: theme.primary }}>
         <StatusBar
-          barStyle="light-content"
-          backgroundColor="#2563eb"
+          barStyle={isDark ? "light-content" : "light-content"}
+          backgroundColor={theme.primary}
           translucent={false}
         />
         <HomeApp />

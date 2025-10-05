@@ -25,7 +25,8 @@ import {
   TARGET_REPS,
   workouts
 } from "../constants";
-import { styles } from "../styles";
+import { useTheme } from "../ThemeContext";
+import { createThemedStyles } from "../themedStyles";
 import { CurrentSession, ExerciseKey, WorkoutType } from "../types";
 import {
   formatTime,
@@ -46,6 +47,9 @@ const StrongLifts5x5App: React.FC = () => {
     setExerciseDeloads,
     unitSystem
   } = useWorkout();
+
+  const { theme, isDark } = useTheme();
+  const styles = createThemedStyles(theme);
 
   const [currentWorkout, setCurrentWorkout] = useState<WorkoutType>("A");
   const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
@@ -300,7 +304,7 @@ const StrongLifts5x5App: React.FC = () => {
         "Deload Recommended",
         `After 3 failed sessions, these exercises should be deloaded by 10%:\n\n${deloadText}`,
         [
-          { text: "yolo" },
+          { text: "yolo", style: "cancel" },
           { text: "Accept", onPress: () => applyDeloads(exercisesToDeload) }
         ]
       );
@@ -447,8 +451,8 @@ const StrongLifts5x5App: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar
-        barStyle="light-content"
-        backgroundColor="#2563eb"
+        barStyle={isDark ? "light-content" : "light-content"}
+        backgroundColor={theme.primary}
         translucent={false}
       />
       <ScrollView style={styles.scrollView}>
@@ -483,7 +487,7 @@ const StrongLifts5x5App: React.FC = () => {
               onPress={() => setShowBodyweightInput(!showBodyweightInput)}
               style={[
                 styles.presetButton,
-                showBodyweightInput && { backgroundColor: "#2563eb" }
+                showBodyweightInput && { backgroundColor: theme.primary }
               ]}
             >
               <Text
@@ -498,7 +502,13 @@ const StrongLifts5x5App: React.FC = () => {
           </View>
           {showBodyweightInput && (
             <View style={{ marginTop: 12 }}>
-              <Text style={{ fontSize: 12, color: "#6b7280", marginBottom: 4 }}>
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: theme.textSecondary,
+                  marginBottom: 4
+                }}
+              >
                 Bodyweight
               </Text>
               <View style={styles.weightEditContainer}>
@@ -508,7 +518,7 @@ const StrongLifts5x5App: React.FC = () => {
                   onChangeText={setBodyweight}
                   keyboardType="numeric"
                   placeholder="0"
-                  placeholderTextColor="#9ca3af"
+                  placeholderTextColor={theme.textSecondary}
                   onSubmitEditing={() => setShowBodyweightInput(false)}
                 />
                 <Text style={styles.exerciseWeight}>{unitSystem}</Text>
@@ -554,6 +564,7 @@ const StrongLifts5x5App: React.FC = () => {
                       selectTextOnFocus
                       autoFocus
                       onSubmitEditing={confirmWeightEdit}
+                      placeholderTextColor={theme.textSecondary}
                     />
                     <Text style={styles.exerciseWeight}>{unitSystem}</Text>
                     <TouchableOpacity
@@ -593,7 +604,7 @@ const StrongLifts5x5App: React.FC = () => {
                       <MaterialCommunityIcons
                         name="weight"
                         size={20}
-                        color="#2563eb"
+                        color={theme.primary}
                       />
                     </TouchableOpacity>
                     <TouchableOpacity
@@ -616,12 +627,19 @@ const StrongLifts5x5App: React.FC = () => {
                         <Text style={styles.setLabel}>Set {setIndex + 1}</Text>
                         <TouchableOpacity
                           onPress={() => updateSet(exercise, setIndex)}
-                          style={[styles.repButton, getRepButtonStyle(reps)]}
+                          style={[
+                            styles.repButton,
+                            getRepButtonStyle(reps) === "complete"
+                              ? styles.repButtonComplete
+                              : styles.repButtonEmpty
+                          ]}
                         >
                           <Text
                             style={[
                               styles.repButtonText,
-                              getRepButtonTextStyle(reps)
+                              getRepButtonTextStyle(reps) === "complete"
+                                ? styles.repButtonTextComplete
+                                : styles.repButtonTextEmpty
                             ]}
                           >
                             {reps >= 0 ? reps.toString() : ""}

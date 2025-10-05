@@ -1,9 +1,10 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
 import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useTheme } from "../app/ThemeContext";
 import { UnitSystem } from "../app/types";
 import { formatWeight } from "../app/utils";
-import { plateStyles } from "./PlateCalculator.styles";
+import { createPlateStyles } from "./PlateCalculator.styles";
 
 interface PlateCalculatorProps {
   visible: boolean;
@@ -20,6 +21,9 @@ const PlateCalculator: React.FC<PlateCalculatorProps> = ({
   unitSystem,
   exerciseName
 }) => {
+  const { theme } = useTheme();
+  const styles = createPlateStyles(theme);
+
   const calculatePlates = (totalWeight: number): number[] => {
     const barWeight = unitSystem === "lbs" ? 45 : 20;
     const availablePlates =
@@ -89,54 +93,58 @@ const PlateCalculator: React.FC<PlateCalculatorProps> = ({
       onRequestClose={onClose}
     >
       <TouchableOpacity
-        style={plateStyles.modalOverlay}
+        style={styles.modalOverlay}
         activeOpacity={1}
         onPress={onClose}
       >
         <TouchableOpacity
           activeOpacity={1}
           onPress={(e) => e.stopPropagation()}
-          style={plateStyles.modalContent}
+          style={styles.modalContent}
         >
-          <View style={plateStyles.header}>
-            <Text style={plateStyles.headerTitle}>Plate Calculator</Text>
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Plate Calculator</Text>
             <TouchableOpacity onPress={onClose}>
-              <MaterialCommunityIcons name="close" size={24} color="#6b7280" />
+              <MaterialCommunityIcons
+                name="close"
+                size={24}
+                color={theme.textSecondary}
+              />
             </TouchableOpacity>
           </View>
           <ScrollView showsVerticalScrollIndicator={false}>
             <View>
-              <Text style={plateStyles.exerciseName}>{exerciseName}</Text>
-              <Text style={plateStyles.totalWeight}>
+              <Text style={styles.exerciseName}>{exerciseName}</Text>
+              <Text style={styles.totalWeight}>
                 {formatWeight(weight, unitSystem)}
               </Text>
-              <View style={plateStyles.plateDisplay}>
-                <View style={plateStyles.plateRow}>
-                  <View style={plateStyles.barbell}>
-                    <Text style={plateStyles.barbellText}>
+              <View style={styles.plateDisplay}>
+                <View style={styles.plateRow}>
+                  <View style={styles.barbell}>
+                    <Text style={styles.barbellText}>
                       {unitSystem === "lbs" ? "45" : "20"}
                     </Text>
                   </View>
-                  <View style={plateStyles.platesContainer}>
+                  <View style={styles.platesContainer}>
                     {plates.map((plate, index) => (
                       <View
                         key={`plate-${index}`}
                         style={[
-                          plateStyles.plate,
+                          styles.plate,
                           {
                             height: getPlateHeight(plate),
                             backgroundColor: getPlateColor(plate)
                           }
                         ]}
                       >
-                        <Text style={plateStyles.plateText}>{plate}</Text>
+                        <Text style={styles.plateText}>{plate}</Text>
                       </View>
                     ))}
                   </View>
                 </View>
               </View>
               {plates.length === 0 && (
-                <Text style={plateStyles.barOnlyText}>Bar only</Text>
+                <Text style={styles.barOnlyText}>Bar only</Text>
               )}
             </View>
           </ScrollView>

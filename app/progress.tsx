@@ -11,11 +11,12 @@ import {
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { useWorkout } from "./WorkoutContext";
 import { exerciseNames } from "./constants";
-import { styles } from "./styles";
+import { useTheme } from "./ThemeContext";
+import { createThemedStyles } from "./themedStyles";
 import { ExerciseKey, WorkoutHistoryItem } from "./types";
 import { convertWeight } from "./utils";
+import { useWorkout } from "./WorkoutContext";
 
 const EXERCISE_COLORS: Record<ExerciseKey | "bodyweight", string> = {
   squat: "#2563eb",
@@ -28,6 +29,8 @@ const EXERCISE_COLORS: Record<ExerciseKey | "bodyweight", string> = {
 
 const ProgressScreen: React.FC = () => {
   const { workoutHistory, unitSystem } = useWorkout();
+  const { theme, isDark } = useTheme();
+  const styles = createThemedStyles(theme);
   const [selectedExercise, setSelectedExercise] = useState<
     ExerciseKey | "bodyweight"
   >("squat");
@@ -145,13 +148,18 @@ const ProgressScreen: React.FC = () => {
                   width={screenWidth}
                   height={280}
                   chartConfig={{
-                    backgroundColor: "#ffffff",
-                    backgroundGradientFrom: "#ffffff",
-                    backgroundGradientTo: "#ffffff",
+                    backgroundColor: theme.surface,
+                    backgroundGradientFrom: theme.surface,
+                    backgroundGradientTo: theme.surface,
                     decimalPlaces: 1,
-                    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                    color: (opacity = 1) =>
+                      isDark
+                        ? `rgba(255, 255, 255, ${opacity})`
+                        : `rgba(0, 0, 0, ${opacity})`,
                     labelColor: (opacity = 1) =>
-                      `rgba(107, 114, 128, ${opacity})`,
+                      isDark
+                        ? `rgba(156, 163, 175, ${opacity})`
+                        : `rgba(107, 114, 128, ${opacity})`,
                     style: {
                       borderRadius: 16
                     },
@@ -162,7 +170,7 @@ const ProgressScreen: React.FC = () => {
                     },
                     propsForBackgroundLines: {
                       strokeDasharray: "",
-                      stroke: "#e5e7eb",
+                      stroke: theme.border,
                       strokeWidth: 1
                     }
                   }}
@@ -216,7 +224,7 @@ const ProgressScreen: React.FC = () => {
                           {
                             borderColor: isActive
                               ? EXERCISE_COLORS[key]
-                              : "#e5e7eb",
+                              : theme.border,
                             opacity: exerciseHasData ? 1 : 0.5
                           }
                         ]}
@@ -260,7 +268,7 @@ const ProgressScreen: React.FC = () => {
                         {
                           borderColor: isActive
                             ? EXERCISE_COLORS.bodyweight
-                            : "#e5e7eb",
+                            : theme.border,
                           opacity: bodyweightHasData ? 1 : 0.5
                         }
                       ]}
@@ -304,12 +312,15 @@ const ProgressScreen: React.FC = () => {
 };
 
 const Progress: React.FC = () => {
+  const { theme, isDark } = useTheme();
+  const styles = createThemedStyles(theme);
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container} edges={["top"]}>
         <StatusBar
-          barStyle="light-content"
-          backgroundColor="#2563eb"
+          barStyle={isDark ? "light-content" : "light-content"}
+          backgroundColor={theme.primary}
           translucent={false}
         />
         <ProgressScreen />

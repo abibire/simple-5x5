@@ -1,16 +1,22 @@
 import { HapticTab } from "@/components/haptic-tab";
-import { Colors } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Tabs } from "expo-router";
 import React from "react";
+import { useTheme } from "../ThemeContext";
 
 export default function TabLayout() {
+  const { theme } = useTheme();
+
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#2563eb",
-        tabBarInactiveTintColor: Colors.light.tabIconDefault,
+        tabBarActiveTintColor: theme.primary,
+        tabBarInactiveTintColor: theme.tabIconDefault,
+        tabBarStyle: {
+          backgroundColor: theme.surface,
+          borderTopColor: theme.border
+        },
         headerShown: false,
         tabBarButton: HapticTab
       }}
