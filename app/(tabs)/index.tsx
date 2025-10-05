@@ -1,5 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Octicons from "@expo/vector-icons/Octicons";
+import { router } from "expo-router";
 import {
   Alert,
   ScrollView,
@@ -101,7 +102,12 @@ const HomeApp: React.FC = () => {
           <View style={styles.historyContainer}>
             <View style={styles.historyHeader}>
               <Text style={styles.historyTitle}>Recent Workouts</Text>
-              <Octicons name="graph" size={24} color="#2563eb" />
+              <TouchableOpacity
+                onPress={() => router.push("/progress")}
+                activeOpacity={0.6}
+              >
+                <Octicons name="graph" size={24} color="#2563eb" />
+              </TouchableOpacity>
             </View>
             <View style={styles.historyList}>
               {workoutHistory.map(

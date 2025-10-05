@@ -263,5 +263,88 @@ export const styles = StyleSheet.create({
   homeContainer: {
     flex: 1,
     backgroundColor: "#f9fafb"
+  },
+  progressContainer: {
+    flex: 1,
+    backgroundColor: "#f9fafb"
+  },
+  progressHeaderContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12
+  },
+  progressChartContainer: {
+    backgroundColor: "white",
+    paddingVertical: 16
+  },
+  progressNoDataContainer: {
+    height: 280,
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 8
+  },
+  progressNoDataText: {
+    fontSize: 14,
+    color: "#6b7280",
+    textAlign: "center"
+  },
+  progressChartLabel: {
+    textAlign: "center",
+    color: "#6b7280",
+    fontSize: 12,
+    marginTop: 8
+  },
+  progressSelectContainer: {
+    backgroundColor: "white",
+    padding: 16,
+    marginTop: 1
+  },
+  progressSelectTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 12
+  },
+  progressSelectList: {
+    gap: 8
+  },
+  progressExerciseButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 2
+  },
+  progressExerciseButtonActive: {
+    backgroundColor: "#f3f4f6"
+  },
+  progressExerciseButtonInactive: {
+    backgroundColor: "#ffffff"
+  },
+  progressExerciseDot: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    marginRight: 12
+  },
+  progressExerciseText: {
+    fontSize: 16
+  },
+  progressExerciseTextActive: {
+    fontWeight: "600",
+    color: "#000000"
+  },
+  progressExerciseTextInactive: {
+    fontWeight: "400",
+    color: "#6b7280"
+  },
+  progressEmptyState: {
+    backgroundColor: "white",
+    padding: 32,
+    alignItems: "center"
+  },
+  progressEmptyStateText: {
+    fontSize: 16,
+    color: "#6b7280",
+    textAlign: "center"
   }
 });
