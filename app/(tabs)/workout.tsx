@@ -509,6 +509,7 @@ const StrongLifts5x5App: React.FC = () => {
                   keyboardType="numeric"
                   placeholder="0"
                   placeholderTextColor="#9ca3af"
+                  onSubmitEditing={() => setShowBodyweightInput(false)}
                 />
                 <Text style={styles.exerciseWeight}>{unitSystem}</Text>
                 <TouchableOpacity
