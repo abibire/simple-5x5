@@ -160,25 +160,6 @@ const HomeApp: React.FC = () => {
                         {workout.accessories &&
                           workout.accessories.length > 0 && (
                             <>
-                              <View
-                                style={{
-                                  borderTopWidth: 1,
-                                  borderTopColor: theme.border,
-                                  marginTop: 8,
-                                  paddingTop: 8
-                                }}
-                              >
-                                <Text
-                                  style={{
-                                    fontSize: 11,
-                                    fontWeight: "600",
-                                    color: theme.textSecondary,
-                                    marginBottom: 4
-                                  }}
-                                >
-                                  Accessories
-                                </Text>
-                              </View>
                               {workout.accessories.map(
                                 (
                                   accessory: AccessoryWorkoutExercise,
