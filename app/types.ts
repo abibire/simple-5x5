@@ -1,6 +1,13 @@
-export type WorkoutType = 'A' | 'B';
-export type ExerciseKey = 'squat' | 'bench' | 'row' | 'ohp' | 'deadlift';
-export type UnitSystem = 'lbs' | 'kg';
+export type WorkoutType = "A" | "B";
+export type ExerciseKey = "squat" | "bench" | "row" | "ohp" | "deadlift";
+export type UnitSystem = "lbs" | "kg";
+export type AccessoryCategory =
+  | "arms"
+  | "back"
+  | "chest"
+  | "core"
+  | "legs"
+  | "shoulders";
 
 export interface Weights {
   squat: number;
@@ -46,10 +53,38 @@ export interface WorkoutExercise {
   completed: boolean;
 }
 
+export interface AccessoryWorkoutExercise {
+  id: string;
+  name: string;
+  weight: number;
+  sets: number[];
+  targetReps: number;
+}
+
 export interface WorkoutHistoryItem {
   date: string;
   type: WorkoutType;
   exercises: WorkoutExercise[];
+  accessories?: AccessoryWorkoutExercise[];
   bodyweight?: number;
   unit?: UnitSystem;
+}
+
+export interface AccessoryExercise {
+  id: string;
+  name: string;
+  category: AccessoryCategory;
+  defaultSets: number;
+  defaultReps: number;
+  defaultRest: number;
+  defaultWeight: number;
+}
+
+export interface UserAccessoryExercise extends AccessoryExercise {
+  enabled: boolean;
+  sets: number;
+  reps: number;
+  rest: number;
+  weight: number;
+  workouts: ("A" | "B")[];
 }

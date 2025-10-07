@@ -1,3 +1,5 @@
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React from "react";
 import {
   Alert,
@@ -22,7 +24,14 @@ const kgToLbs = (kg: number): number => {
 };
 
 const SettingsApp: React.FC = () => {
-  const { unitSystem, setUnitSystem, weights, setWeights } = useWorkout();
+  const {
+    unitSystem,
+    setUnitSystem,
+    weights,
+    setWeights,
+    accessories,
+    setAccessories
+  } = useWorkout();
   const { theme, themeMode, setThemeMode, isDark } = useTheme();
   const styles = createThemedStyles(theme);
 
@@ -227,6 +236,30 @@ const SettingsApp: React.FC = () => {
               Changing units will offer to convert your current weights
             </Text>
           </View>
+        </View>
+
+        <View style={styles.weightsContainer}>
+          <View style={styles.weightsHeader}>
+            <Text style={styles.weightsTitle}>Accessory Exercises</Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => router.push("/accessories")}
+            style={{
+              padding: 16,
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center"
+            }}
+          >
+            <Text style={{ fontSize: 16, color: theme.text }}>
+              Manage Accessories
+            </Text>
+            <Ionicons
+              name="chevron-forward"
+              size={24}
+              color={theme.textSecondary}
+            />
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>

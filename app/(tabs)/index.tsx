@@ -18,7 +18,12 @@ import {
 } from "../constants";
 import { useTheme } from "../ThemeContext";
 import { createThemedStyles } from "../themedStyles";
-import { ExerciseKey, WorkoutExercise, WorkoutHistoryItem } from "../types";
+import {
+  AccessoryWorkoutExercise,
+  ExerciseKey,
+  WorkoutExercise,
+  WorkoutHistoryItem
+} from "../types";
 import { convertWeight, formatWeight } from "../utils";
 import { useWorkout } from "../WorkoutContext";
 
@@ -152,6 +157,67 @@ const HomeApp: React.FC = () => {
                             );
                           }
                         )}
+                        {workout.accessories &&
+                          workout.accessories.length > 0 && (
+                            <>
+                              <View
+                                style={{
+                                  borderTopWidth: 1,
+                                  borderTopColor: theme.border,
+                                  marginTop: 8,
+                                  paddingTop: 8
+                                }}
+                              >
+                                <Text
+                                  style={{
+                                    fontSize: 11,
+                                    fontWeight: "600",
+                                    color: theme.textSecondary,
+                                    marginBottom: 4
+                                  }}
+                                >
+                                  Accessories
+                                </Text>
+                              </View>
+                              {workout.accessories.map(
+                                (
+                                  accessory: AccessoryWorkoutExercise,
+                                  accIndex: number
+                                ) => {
+                                  const displayWeight = convertWeight(
+                                    accessory.weight,
+                                    workoutUnit,
+                                    unitSystem
+                                  );
+                                  return (
+                                    <View
+                                      key={accIndex}
+                                      style={styles.historyExercise}
+                                    >
+                                      <Text
+                                        style={[
+                                          styles.historyExerciseName,
+                                          { fontSize: 11 }
+                                        ]}
+                                      >
+                                        {accessory.name}
+                                      </Text>
+                                      <Text
+                                        style={[
+                                          styles.historyExerciseData,
+                                          { fontSize: 11 }
+                                        ]}
+                                      >
+                                        {displayWeight} {unitSystem} •{" "}
+                                        {accessory.targetReps} ×{" "}
+                                        {accessory.sets.join(", ")}
+                                      </Text>
+                                    </View>
+                                  );
+                                }
+                              )}
+                            </>
+                          )}
                       </View>
                     </View>
                   );

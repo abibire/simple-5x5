@@ -35,6 +35,13 @@ export default function RootLayout() {
                 headerShown: false
               }}
             />
+            <Stack.Screen
+              name="accessories"
+              options={{
+                presentation: "card",
+                headerShown: false
+              }}
+            />
           </Stack>
           <StatusBar style="light" backgroundColor="#2563eb" />
         </ThemeProvider>

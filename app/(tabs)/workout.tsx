@@ -27,7 +27,12 @@ import {
 } from "../constants";
 import { useTheme } from "../ThemeContext";
 import { createThemedStyles } from "../themedStyles";
-import { CurrentSession, ExerciseKey, WorkoutType } from "../types";
+import {
+  CurrentSession,
+  ExerciseKey,
+  UserAccessoryExercise,
+  WorkoutType
+} from "../types";
 import {
   formatTime,
   formatWeight,
@@ -35,6 +40,18 @@ import {
   getRepButtonTextStyle
 } from "../utils";
 import { useWorkout } from "../WorkoutContext";
+
+interface AccessorySessionData {
+  [key: string]: number[];
+}
+
+interface AccessoryWeightEditing {
+  [key: string]: boolean;
+}
+
+interface AccessoryWeightInput {
+  [key: string]: string;
+}
 
 const StrongLifts5x5App: React.FC = () => {
   const {
@@ -45,7 +62,9 @@ const StrongLifts5x5App: React.FC = () => {
     setExerciseFailures,
     exerciseDeloads,
     setExerciseDeloads,
-    unitSystem
+    unitSystem,
+    accessories,
+    setAccessories
   } = useWorkout();
 
   const { theme, isDark } = useTheme();
@@ -60,6 +79,12 @@ const StrongLifts5x5App: React.FC = () => {
   const [currentSession, setCurrentSession] = useState<CurrentSession>(
     createDefaultSession()
   );
+  const [accessorySession, setAccessorySession] =
+    useState<AccessorySessionData>({});
+  const [editingAccessoryWeight, setEditingAccessoryWeight] =
+    useState<AccessoryWeightEditing>({});
+  const [accessoryWeightInput, setAccessoryWeightInput] =
+    useState<AccessoryWeightInput>({});
   const [hasShownDeloadAlert, setHasShownDeloadAlert] =
     useState<boolean>(false);
   const [editingWeight, setEditingWeight] = useState<ExerciseKey | null>(null);
@@ -75,11 +100,24 @@ const StrongLifts5x5App: React.FC = () => {
   const appState = useRef(AppState.currentState);
   const isNative = Platform.OS !== "web";
 
+  const activeAccessories = accessories.filter(
+    (acc) => acc.enabled && acc.workouts.includes(currentWorkout)
+  );
+
   useEffect(() => {
     setupNotifications();
     setHasShownDeloadAlert(false);
     checkForDeloads();
-  }, [currentWorkout]);
+    initializeAccessorySession();
+  }, [currentWorkout, accessories]);
+
+  const initializeAccessorySession = () => {
+    const newAccessorySession: AccessorySessionData = {};
+    activeAccessories.forEach((acc) => {
+      newAccessorySession[acc.id] = Array(acc.sets).fill(-1);
+    });
+    setAccessorySession(newAccessorySession);
+  };
 
   useEffect(() => {
     if (!isNative) return;
@@ -356,6 +394,41 @@ const StrongLifts5x5App: React.FC = () => {
     });
   };
 
+  const toggleAccessorySet = (
+    accessoryId: string,
+    setIndex: number,
+    targetReps: number,
+    restTime: number
+  ): void => {
+    Notifications.dismissAllNotificationsAsync();
+    setAccessorySession((prev) => {
+      const newSession = { ...prev };
+      if (!newSession[accessoryId]) {
+        return prev;
+      }
+      newSession[accessoryId] = [...newSession[accessoryId]];
+
+      const currentReps = newSession[accessoryId][setIndex];
+      let nextReps: number;
+
+      if (currentReps === -1) {
+        nextReps = targetReps;
+      } else if (currentReps === 0) {
+        nextReps = -1;
+      } else {
+        nextReps = currentReps - 1;
+      }
+
+      newSession[accessoryId][setIndex] = nextReps;
+
+      if (nextReps > 0) {
+        startTimer(restTime);
+      }
+
+      return newSession;
+    });
+  };
+
   const isExerciseCompleted = (exercise: ExerciseKey): boolean => {
     const sets = currentSession[exercise].sets;
     const totalReps = sets.reduce((sum, reps) => sum + Math.max(0, reps), 0);
@@ -388,6 +461,15 @@ const StrongLifts5x5App: React.FC = () => {
         newFailures[exercise] += 1;
       }
     });
+
+    const accessoriesData = activeAccessories.map((acc) => ({
+      id: acc.id,
+      name: acc.name,
+      weight: acc.weight,
+      sets: accessorySession[acc.id]?.map((reps) => Math.max(0, reps)) || [],
+      targetReps: acc.reps
+    }));
+
     const workout = {
       date: new Date().toLocaleDateString(),
       type: currentWorkout,
@@ -397,6 +479,7 @@ const StrongLifts5x5App: React.FC = () => {
         sets: currentSession[ex].sets.map((reps) => Math.max(0, reps)),
         completed: isExerciseCompleted(ex)
       })),
+      accessories: accessoriesData.length > 0 ? accessoriesData : undefined,
       bodyweight: bodyweight ? parseFloat(bodyweight) : undefined,
       unit: unitSystem
     };
@@ -408,6 +491,7 @@ const StrongLifts5x5App: React.FC = () => {
     setCurrentWorkout(currentWorkout === "A" ? "B" : "A");
     setBodyweight("");
     setShowBodyweightInput(false);
+    initializeAccessorySession();
     router.push("/");
   };
 
@@ -446,6 +530,48 @@ const StrongLifts5x5App: React.FC = () => {
   const cancelWeightEdit = (): void => {
     setEditingWeight(null);
     setWeightInputValue("");
+  };
+
+  const startEditingAccessoryWeight = (
+    accessoryId: string,
+    currentWeight: number
+  ): void => {
+    setEditingAccessoryWeight({
+      ...editingAccessoryWeight,
+      [accessoryId]: true
+    });
+    setAccessoryWeightInput({
+      ...accessoryWeightInput,
+      [accessoryId]: currentWeight.toString()
+    });
+  };
+
+  const confirmAccessoryWeightEdit = (accessoryId: string): void => {
+    const newWeight = parseFloat(accessoryWeightInput[accessoryId] || "0");
+    if (!isNaN(newWeight) && newWeight >= 0) {
+      const index = accessories.findIndex((acc) => acc.id === accessoryId);
+      if (index >= 0) {
+        const newAccessories = [...accessories];
+        newAccessories[index] = {
+          ...newAccessories[index],
+          weight: newWeight
+        };
+        setAccessories(newAccessories);
+      }
+    }
+    setEditingAccessoryWeight({
+      ...editingAccessoryWeight,
+      [accessoryId]: false
+    });
+    setAccessoryWeightInput({ ...accessoryWeightInput, [accessoryId]: "" });
+  };
+
+  const cancelAccessoryWeightEdit = (accessoryId: string): void => {
+    setEditingAccessoryWeight({
+      ...editingAccessoryWeight,
+      [accessoryId]: false
+    });
+    setAccessoryWeightInput({ ...accessoryWeightInput, [accessoryId]: "" });
   };
 
   return (
@@ -653,6 +779,123 @@ const StrongLifts5x5App: React.FC = () => {
             </View>
           ))}
         </View>
+
+        {activeAccessories.length > 0 && (
+          <View style={styles.workoutContainer}>
+            <View style={styles.weightsHeader}>
+              <Text style={styles.weightsTitle}>Accessories</Text>
+            </View>
+            {activeAccessories.map((accessory: UserAccessoryExercise) => (
+              <View key={accessory.id} style={styles.exerciseContainer}>
+                <View style={styles.exerciseHeader}>
+                  <Text style={styles.exerciseName}>{accessory.name}</Text>
+                  {editingAccessoryWeight[accessory.id] ? (
+                    <View style={styles.weightEditContainer}>
+                      <TextInput
+                        style={styles.weightInput}
+                        value={accessoryWeightInput[accessory.id]}
+                        onChangeText={(text) =>
+                          setAccessoryWeightInput({
+                            ...accessoryWeightInput,
+                            [accessory.id]: text
+                          })
+                        }
+                        keyboardType="numeric"
+                        selectTextOnFocus
+                        autoFocus
+                        onSubmitEditing={() =>
+                          confirmAccessoryWeightEdit(accessory.id)
+                        }
+                        placeholderTextColor={theme.textSecondary}
+                      />
+                      <Text style={styles.exerciseWeight}>{unitSystem}</Text>
+                      <TouchableOpacity
+                        onPress={() => confirmAccessoryWeightEdit(accessory.id)}
+                        style={[
+                          styles.weightEditButton,
+                          styles.weightEditButtonConfirm
+                        ]}
+                      >
+                        <Text style={styles.weightEditButtonText}>✓</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() => cancelAccessoryWeightEdit(accessory.id)}
+                        style={[
+                          styles.weightEditButton,
+                          styles.weightEditButtonCancel
+                        ]}
+                      >
+                        <Text style={styles.weightEditButtonText}>✕</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ) : (
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 8
+                      }}
+                    >
+                      <TouchableOpacity
+                        onPress={() =>
+                          startEditingAccessoryWeight(
+                            accessory.id,
+                            accessory.weight
+                          )
+                        }
+                        activeOpacity={0.6}
+                      >
+                        <Text style={styles.exerciseWeightClickable}>
+                          {formatWeight(accessory.weight, unitSystem)}
+                        </Text>
+                      </TouchableOpacity>
+                      <Text style={styles.exerciseWeight}>
+                        • {accessory.sets} × {accessory.reps}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+                <View style={styles.setsContainer}>
+                  {accessorySession[accessory.id]?.map(
+                    (reps: number, setIndex: number) => (
+                      <View key={setIndex} style={styles.setContainer}>
+                        <Text style={styles.setLabel}>Set {setIndex + 1}</Text>
+                        <TouchableOpacity
+                          onPress={() =>
+                            toggleAccessorySet(
+                              accessory.id,
+                              setIndex,
+                              accessory.reps,
+                              accessory.rest
+                            )
+                          }
+                          style={[
+                            styles.repButton,
+                            getRepButtonStyle(reps) === "complete"
+                              ? styles.repButtonComplete
+                              : styles.repButtonEmpty
+                          ]}
+                        >
+                          <Text
+                            style={[
+                              styles.repButtonText,
+                              getRepButtonTextStyle(reps) === "complete"
+                                ? styles.repButtonTextComplete
+                                : styles.repButtonTextEmpty
+                            ]}
+                          >
+                            {reps >= 0 ? reps.toString() : ""}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    )
+                  )}
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+
         <View style={styles.completeButtonContainer}>
           <TouchableOpacity
             onPress={completeWorkout}
