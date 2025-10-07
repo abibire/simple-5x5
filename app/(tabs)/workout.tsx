@@ -849,9 +849,6 @@ const StrongLifts5x5App: React.FC = () => {
                           {formatWeight(accessory.weight, unitSystem)}
                         </Text>
                       </TouchableOpacity>
-                      <Text style={styles.exerciseWeight}>
-                        • {accessory.sets} × {accessory.reps}
-                      </Text>
                     </View>
                   )}
                 </View>

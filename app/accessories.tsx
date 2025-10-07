@@ -446,7 +446,10 @@ const AccessoriesScreen: React.FC = () => {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1, backgroundColor: theme.primary }}>
+      <SafeAreaView
+        style={{ flex: 1, backgroundColor: theme.primary }}
+        edges={["top"]}
+      >
         <StatusBar
           barStyle={isDark ? "light-content" : "light-content"}
           backgroundColor={theme.primary}
