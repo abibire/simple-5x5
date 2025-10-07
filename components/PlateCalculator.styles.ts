@@ -42,12 +42,6 @@ export const createPlateStyles = (theme: Theme) =>
       marginBottom: 16,
       color: theme.primary
     },
-    platesLabel: {
-      fontSize: 14,
-      color: theme.textSecondary,
-      textAlign: "center",
-      marginBottom: 12
-    },
     plateDisplay: {
       alignItems: "center",
       paddingVertical: 10
@@ -91,5 +85,77 @@ export const createPlateStyles = (theme: Theme) =>
       color: theme.textSecondary,
       textAlign: "center",
       marginTop: 8
+    },
+    warmupContainer: {
+      marginTop: 24,
+      paddingTop: 16,
+      borderTopWidth: 1,
+      borderTopColor: theme.border
+    },
+    warmupTitle: {
+      fontSize: 14,
+      fontWeight: "600",
+      color: theme.text,
+      marginBottom: 8
+    },
+    warmupSets: {
+      gap: 4
+    },
+    warmupSetRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingVertical: 4
+    },
+    warmupSetInfo: {
+      flexDirection: "row",
+      gap: 8,
+      flex: 1
+    },
+    warmupSetLabel: {
+      fontSize: 12,
+      color: theme.textSecondary,
+      minWidth: 36
+    },
+    warmupSetData: {
+      fontSize: 12,
+      color: theme.text
+    },
+    warmupPlates: {
+      fontSize: 11,
+      color: theme.textSecondary,
+      fontStyle: "italic"
+    },
+    workSetContainer: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingVertical: 6,
+      marginTop: 4,
+      paddingTop: 8,
+      borderTopWidth: 1,
+      borderTopColor: theme.border
+    },
+    workSetInfo: {
+      flexDirection: "row",
+      gap: 8,
+      flex: 1
+    },
+    workSetLabel: {
+      fontSize: 12,
+      fontWeight: "600",
+      color: theme.text,
+      minWidth: 36
+    },
+    workSetData: {
+      fontSize: 12,
+      fontWeight: "600",
+      color: theme.primary
+    },
+    workSetPlates: {
+      fontSize: 11,
+      color: theme.textSecondary,
+      fontStyle: "italic",
+      fontWeight: "600"
     }
   });
