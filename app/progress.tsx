@@ -27,13 +27,24 @@ const EXERCISE_COLORS: Record<ExerciseKey | "bodyweight", string> = {
   bodyweight: "#06b6d4"
 };
 
+const hashStringToColor = (str: string): string => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  const hue = Math.abs(hash % 360);
+  const saturation = 65 + (Math.abs(hash >> 8) % 20);
+  const lightness = 45 + (Math.abs(hash >> 16) % 15);
+
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+};
+
 const ProgressScreen: React.FC = () => {
   const { workoutHistory, unitSystem } = useWorkout();
   const { theme, isDark } = useTheme();
   const styles = createThemedStyles(theme);
-  const [selectedExercise, setSelectedExercise] = useState<
-    ExerciseKey | "bodyweight"
-  >("squat");
+  const [selectedExercise, setSelectedExercise] = useState<string>("squat");
   const [refreshKey, setRefreshKey] = useState(0);
 
   useFocusEffect(
@@ -42,8 +53,20 @@ const ProgressScreen: React.FC = () => {
     }, [])
   );
 
+  const accessoryExercisesInHistory = useMemo(() => {
+    const accessorySet = new Set<string>();
+    workoutHistory.forEach((workout) => {
+      if (workout.accessories) {
+        workout.accessories.forEach((acc) => {
+          accessorySet.add(acc.id);
+        });
+      }
+    });
+    return Array.from(accessorySet);
+  }, [workoutHistory]);
+
   const chartData = useMemo(() => {
-    const exerciseData: Record<ExerciseKey | "bodyweight", number[]> = {
+    const exerciseData: Record<string, number[]> = {
       squat: [],
       bench: [],
       row: [],
@@ -52,11 +75,15 @@ const ProgressScreen: React.FC = () => {
       bodyweight: []
     };
 
+    accessoryExercisesInHistory.forEach((accId) => {
+      exerciseData[accId] = [];
+    });
+
     const labels: string[] = [];
 
     const reversedHistory = [...workoutHistory].reverse();
 
-    reversedHistory.forEach((workout: WorkoutHistoryItem, index: number) => {
+    reversedHistory.forEach((workout: WorkoutHistoryItem) => {
       const dateParts = workout.date.split("/");
       const shortDate =
         dateParts.length >= 2
@@ -97,17 +124,67 @@ const ProgressScreen: React.FC = () => {
           exerciseData[key].push(0);
         }
       });
+
+      const workoutAccessories = new Set<string>();
+      if (workout.accessories) {
+        workout.accessories.forEach((acc) => {
+          const workoutUnit = workout.unit || "lbs";
+          const weight = convertWeight(acc.weight, workoutUnit, unitSystem);
+          exerciseData[acc.id].push(weight);
+          workoutAccessories.add(acc.id);
+        });
+      }
+
+      accessoryExercisesInHistory.forEach((accId) => {
+        if (!workoutAccessories.has(accId)) {
+          exerciseData[accId].push(0);
+        }
+      });
     });
 
     return { exerciseData, labels };
-  }, [workoutHistory, unitSystem, refreshKey]);
+  }, [workoutHistory, unitSystem, refreshKey, accessoryExercisesInHistory]);
 
   const screenWidth = Dimensions.get("window").width;
 
-  const selectedData = chartData.exerciseData[selectedExercise].filter(
+  const selectedData = (chartData.exerciseData[selectedExercise] || []).filter(
     (val) => val > 0
   );
   const hasData = selectedData.length > 0;
+
+  const getExerciseColor = (exerciseKey: string): string => {
+    if (exerciseKey in EXERCISE_COLORS) {
+      return EXERCISE_COLORS[exerciseKey as ExerciseKey | "bodyweight"];
+    }
+    return hashStringToColor(exerciseKey);
+  };
+
+  const getExerciseName = (exerciseKey: string): string => {
+    if (exerciseKey === "bodyweight") return "Bodyweight";
+    if (exerciseKey in exerciseNames) {
+      return exerciseNames[exerciseKey as ExerciseKey];
+    }
+    const accessory = workoutHistory
+      .flatMap((w) => w.accessories || [])
+      .find((acc) => acc.id === exerciseKey);
+    return accessory?.name || exerciseKey;
+  };
+
+  const mainExercises = (Object.keys(exerciseNames) as ExerciseKey[]).filter(
+    (key) => (chartData.exerciseData[key] || []).some((val) => val > 0)
+  );
+
+  const accessoriesWithData = accessoryExercisesInHistory.filter((accId) =>
+    (chartData.exerciseData[accId] || []).some((val) => val > 0)
+  );
+
+  const hasBodyweightData = (chartData.exerciseData.bodyweight || []).some(
+    (val) => val > 0
+  );
+
+  const filteredLabels = chartData.labels.filter(
+    (_, i) => (chartData.exerciseData[selectedExercise] || [])[i] > 0
+  );
 
   return (
     <View style={styles.progressContainer}>
@@ -134,13 +211,11 @@ const ProgressScreen: React.FC = () => {
               {hasData ? (
                 <LineChart
                   data={{
-                    labels: chartData.labels.filter(
-                      (_, i) => chartData.exerciseData[selectedExercise][i] > 0
-                    ),
+                    labels: filteredLabels,
                     datasets: [
                       {
                         data: selectedData,
-                        color: () => EXERCISE_COLORS[selectedExercise],
+                        color: () => getExerciseColor(selectedExercise),
                         strokeWidth: 3
                       }
                     ]
@@ -166,7 +241,7 @@ const ProgressScreen: React.FC = () => {
                     propsForDots: {
                       r: "4",
                       strokeWidth: "2",
-                      stroke: EXERCISE_COLORS[selectedExercise]
+                      stroke: getExerciseColor(selectedExercise)
                     },
                     propsForBackgroundLines: {
                       strokeDasharray: "",
@@ -188,10 +263,7 @@ const ProgressScreen: React.FC = () => {
               ) : (
                 <View style={styles.progressNoDataContainer}>
                   <Text style={styles.progressNoDataText}>
-                    No data for{" "}
-                    {selectedExercise === "bodyweight"
-                      ? "Bodyweight"
-                      : exerciseNames[selectedExercise as ExerciseKey]}
+                    No data for {getExerciseName(selectedExercise)}
                   </Text>
                 </View>
               )}
@@ -205,60 +277,12 @@ const ProgressScreen: React.FC = () => {
             <View style={styles.progressSelectContainer}>
               <Text style={styles.progressSelectTitle}>Select Exercise</Text>
               <View style={styles.progressSelectList}>
-                {(Object.entries(exerciseNames) as [ExerciseKey, string][]).map(
-                  ([key, name]) => {
-                    const exerciseHasData = chartData.exerciseData[key].some(
-                      (val) => val > 0
-                    );
-                    const isActive = selectedExercise === key;
-                    return (
-                      <TouchableOpacity
-                        key={key}
-                        onPress={() => setSelectedExercise(key)}
-                        activeOpacity={0.6}
-                        style={[
-                          styles.progressExerciseButton,
-                          isActive
-                            ? styles.progressExerciseButtonActive
-                            : styles.progressExerciseButtonInactive,
-                          {
-                            borderColor: isActive
-                              ? EXERCISE_COLORS[key]
-                              : theme.border,
-                            opacity: exerciseHasData ? 1 : 0.5
-                          }
-                        ]}
-                      >
-                        <View
-                          style={[
-                            styles.progressExerciseDot,
-                            {
-                              backgroundColor: EXERCISE_COLORS[key],
-                              opacity: isActive ? 1 : 0.3
-                            }
-                          ]}
-                        />
-                        <Text
-                          style={[
-                            styles.progressExerciseText,
-                            isActive
-                              ? styles.progressExerciseTextActive
-                              : styles.progressExerciseTextInactive
-                          ]}
-                        >
-                          {name}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  }
-                )}
-                {(() => {
-                  const bodyweightHasData =
-                    chartData.exerciseData.bodyweight.some((val) => val > 0);
-                  const isActive = selectedExercise === "bodyweight";
+                {mainExercises.map((key) => {
+                  const isActive = selectedExercise === key;
                   return (
                     <TouchableOpacity
-                      onPress={() => setSelectedExercise("bodyweight")}
+                      key={key}
+                      onPress={() => setSelectedExercise(key)}
                       activeOpacity={0.6}
                       style={[
                         styles.progressExerciseButton,
@@ -267,9 +291,8 @@ const ProgressScreen: React.FC = () => {
                           : styles.progressExerciseButtonInactive,
                         {
                           borderColor: isActive
-                            ? EXERCISE_COLORS.bodyweight
-                            : theme.border,
-                          opacity: bodyweightHasData ? 1 : 0.5
+                            ? EXERCISE_COLORS[key]
+                            : theme.border
                         }
                       ]}
                     >
@@ -277,7 +300,7 @@ const ProgressScreen: React.FC = () => {
                         style={[
                           styles.progressExerciseDot,
                           {
-                            backgroundColor: EXERCISE_COLORS.bodyweight,
+                            backgroundColor: EXERCISE_COLORS[key],
                             opacity: isActive ? 1 : 0.3
                           }
                         ]}
@@ -290,11 +313,90 @@ const ProgressScreen: React.FC = () => {
                             : styles.progressExerciseTextInactive
                         ]}
                       >
-                        Bodyweight
+                        {exerciseNames[key]}
                       </Text>
                     </TouchableOpacity>
                   );
-                })()}
+                })}
+                {hasBodyweightData && (
+                  <TouchableOpacity
+                    onPress={() => setSelectedExercise("bodyweight")}
+                    activeOpacity={0.6}
+                    style={[
+                      styles.progressExerciseButton,
+                      selectedExercise === "bodyweight"
+                        ? styles.progressExerciseButtonActive
+                        : styles.progressExerciseButtonInactive,
+                      {
+                        borderColor:
+                          selectedExercise === "bodyweight"
+                            ? EXERCISE_COLORS.bodyweight
+                            : theme.border
+                      }
+                    ]}
+                  >
+                    <View
+                      style={[
+                        styles.progressExerciseDot,
+                        {
+                          backgroundColor: EXERCISE_COLORS.bodyweight,
+                          opacity: selectedExercise === "bodyweight" ? 1 : 0.3
+                        }
+                      ]}
+                    />
+                    <Text
+                      style={[
+                        styles.progressExerciseText,
+                        selectedExercise === "bodyweight"
+                          ? styles.progressExerciseTextActive
+                          : styles.progressExerciseTextInactive
+                      ]}
+                    >
+                      Bodyweight
+                    </Text>
+                  </TouchableOpacity>
+                )}
+                {accessoriesWithData.map((accId) => {
+                  const isActive = selectedExercise === accId;
+                  const color = hashStringToColor(accId);
+                  const name = getExerciseName(accId);
+                  return (
+                    <TouchableOpacity
+                      key={accId}
+                      onPress={() => setSelectedExercise(accId)}
+                      activeOpacity={0.6}
+                      style={[
+                        styles.progressExerciseButton,
+                        isActive
+                          ? styles.progressExerciseButtonActive
+                          : styles.progressExerciseButtonInactive,
+                        {
+                          borderColor: isActive ? color : theme.border
+                        }
+                      ]}
+                    >
+                      <View
+                        style={[
+                          styles.progressExerciseDot,
+                          {
+                            backgroundColor: color,
+                            opacity: isActive ? 1 : 0.3
+                          }
+                        ]}
+                      />
+                      <Text
+                        style={[
+                          styles.progressExerciseText,
+                          isActive
+                            ? styles.progressExerciseTextActive
+                            : styles.progressExerciseTextInactive
+                        ]}
+                      >
+                        {name}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
             </View>
           </>

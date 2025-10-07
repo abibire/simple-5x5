@@ -189,8 +189,7 @@ const HomeApp: React.FC = () => {
                                           { fontSize: 11 }
                                         ]}
                                       >
-                                        {displayWeight} {unitSystem} •{" "}
-                                        {accessory.targetReps} ×{" "}
+                                        {displayWeight} {unitSystem} x{" "}
                                         {accessory.sets.join(", ")}
                                       </Text>
                                     </View>

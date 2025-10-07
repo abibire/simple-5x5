@@ -342,7 +342,7 @@ const StrongLifts5x5App: React.FC = () => {
         "Deload Recommended",
         `After 3 failed sessions, these exercises should be deloaded by 10%:\n\n${deloadText}`,
         [
-          { text: "yolo", style: "cancel" },
+          { text: "yolo" },
           { text: "Accept", onPress: () => applyDeloads(exercisesToDeload) }
         ]
       );
