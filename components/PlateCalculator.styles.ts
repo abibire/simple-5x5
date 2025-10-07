@@ -126,16 +126,6 @@ export const createPlateStyles = (theme: Theme) =>
       color: theme.textSecondary,
       fontStyle: "italic"
     },
-    workSetContainer: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      paddingVertical: 6,
-      marginTop: 4,
-      paddingTop: 8,
-      borderTopWidth: 1,
-      borderTopColor: theme.border
-    },
     workSetInfo: {
       flexDirection: "row",
       gap: 8,

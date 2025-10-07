@@ -254,17 +254,6 @@ const PlateCalculator: React.FC<PlateCalculatorProps> = ({
                         <Text style={styles.warmupPlates}>{set.plateText}</Text>
                       </View>
                     ))}
-                    <View style={styles.workSetContainer}>
-                      <View style={styles.workSetInfo}>
-                        <Text style={styles.workSetLabel}>Work Sets</Text>
-                        <Text style={styles.workSetData}>
-                          {weight} {unitSystem} × 5 sets of 5
-                        </Text>
-                      </View>
-                      <Text style={styles.workSetPlates}>
-                        {getPlatesText(weight)}
-                      </Text>
-                    </View>
                   </View>
                 </View>
               )}
