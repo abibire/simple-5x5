@@ -8,6 +8,7 @@ export type AccessoryCategory =
   | "core"
   | "legs"
   | "shoulders";
+export type RepScheme = "5x5" | "3x5" | "1x5";
 
 export interface Weights {
   squat: number;
@@ -33,6 +34,14 @@ export interface ExerciseDeloads {
   deadlift: number;
 }
 
+export interface RepSchemes {
+  squat: RepScheme;
+  bench: RepScheme;
+  row: RepScheme;
+  ohp: RepScheme;
+  deadlift: RepScheme;
+}
+
 export interface ExerciseSession {
   sets: number[];
   completed: boolean;
@@ -51,6 +60,7 @@ export interface WorkoutExercise {
   weight: number;
   sets: number[];
   completed: boolean;
+  repScheme?: RepScheme;
 }
 
 export interface AccessoryWorkoutExercise {

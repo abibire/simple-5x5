@@ -141,13 +141,14 @@ const HomeApp: React.FC = () => {
                               workoutUnit,
                               unitSystem
                             );
+                            const scheme = exercise.repScheme || "5x5";
                             return (
                               <View
                                 key={exIndex}
                                 style={styles.historyExercise}
                               >
                                 <Text style={styles.historyExerciseName}>
-                                  {exercise.name}
+                                  {exercise.name} ({scheme})
                                 </Text>
                                 <Text style={styles.historyExerciseData}>
                                   {displayWeight}
@@ -189,7 +190,7 @@ const HomeApp: React.FC = () => {
                                           { fontSize: 11 }
                                         ]}
                                       >
-                                        {displayWeight} {unitSystem} x{" "}
+                                        {displayWeight} {unitSystem} ×{" "}
                                         {accessory.sets.join(", ")}
                                       </Text>
                                     </View>

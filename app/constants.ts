@@ -1,16 +1,26 @@
-import { CurrentSession, ExerciseDeloads, ExerciseFailures, ExerciseKey, UnitSystem, Weights, WorkoutType } from './types';
+import {
+  CurrentSession,
+  ExerciseDeloads,
+  ExerciseFailures,
+  ExerciseKey,
+  RepScheme,
+  RepSchemes,
+  UnitSystem,
+  Weights,
+  WorkoutType
+} from "./types";
 
 export const workouts: Record<WorkoutType, ExerciseKey[]> = {
-  A: ['squat', 'bench', 'row'],
-  B: ['squat', 'ohp', 'deadlift']
+  A: ["squat", "bench", "row"],
+  B: ["squat", "ohp", "deadlift"]
 };
 
 export const exerciseNames: Record<ExerciseKey, string> = {
-  squat: 'Squat',
-  bench: 'Bench Press',
-  row: 'Barbell Row',
-  ohp: 'Overhead Press',
-  deadlift: 'Deadlift'
+  squat: "Squat",
+  bench: "Bench Press",
+  row: "Barbell Row",
+  ohp: "Overhead Press",
+  deadlift: "Deadlift"
 };
 
 export const defaultWeights: Record<UnitSystem, Weights> = {
@@ -46,15 +56,47 @@ export const defaultDeloads: ExerciseDeloads = {
   deadlift: 0
 };
 
-export const createDefaultSession = (): CurrentSession => ({
-  squat: { sets: [-1, -1, -1, -1, -1], completed: false },
-  bench: { sets: [-1, -1, -1, -1, -1], completed: false },
-  row: { sets: [-1, -1, -1, -1, -1], completed: false },
-  ohp: { sets: [-1, -1, -1, -1, -1], completed: false },
-  deadlift: { sets: [-1, -1, -1, -1, -1], completed: false }
-});
+export const defaultRepSchemes: RepSchemes = {
+  squat: "5x5",
+  bench: "5x5",
+  row: "5x5",
+  ohp: "5x5",
+  deadlift: "1x5"
+};
 
-export const PROGRESSION_INCREMENTS: Record<UnitSystem, Record<ExerciseKey, number>> = {
+export const getDefaultSessionForScheme = (scheme: RepScheme): number[] => {
+  if (scheme === "5x5") return [-1, -1, -1, -1, -1];
+  if (scheme === "3x5") return [-1, -1, -1];
+  if (scheme === "1x5") return [-1];
+  return [-1, -1, -1, -1, -1];
+};
+
+export const createDefaultSession = (
+  repSchemes?: RepSchemes
+): CurrentSession => {
+  const schemes = repSchemes || defaultRepSchemes;
+  return {
+    squat: {
+      sets: getDefaultSessionForScheme(schemes.squat),
+      completed: false
+    },
+    bench: {
+      sets: getDefaultSessionForScheme(schemes.bench),
+      completed: false
+    },
+    row: { sets: getDefaultSessionForScheme(schemes.row), completed: false },
+    ohp: { sets: getDefaultSessionForScheme(schemes.ohp), completed: false },
+    deadlift: {
+      sets: getDefaultSessionForScheme(schemes.deadlift),
+      completed: false
+    }
+  };
+};
+
+export const PROGRESSION_INCREMENTS: Record<
+  UnitSystem,
+  Record<ExerciseKey, number>
+> = {
   lbs: {
     squat: 5,
     bench: 5,
@@ -74,6 +116,13 @@ export const PROGRESSION_INCREMENTS: Record<UnitSystem, Record<ExerciseKey, numb
 export const MINIMUM_INCREMENT: Record<UnitSystem, number> = {
   lbs: 5,
   kg: 2.5
+};
+
+export const getTargetRepsForScheme = (scheme: RepScheme): number => {
+  if (scheme === "5x5") return 25;
+  if (scheme === "3x5") return 15;
+  if (scheme === "1x5") return 5;
+  return 25;
 };
 
 export const TARGET_REPS = {

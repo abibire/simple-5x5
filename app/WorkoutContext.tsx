@@ -6,10 +6,16 @@ import React, {
   useEffect,
   useState
 } from "react";
-import { defaultDeloads, defaultFailures, defaultWeights } from "./constants";
+import {
+  defaultDeloads,
+  defaultFailures,
+  defaultRepSchemes,
+  defaultWeights
+} from "./constants";
 import {
   ExerciseDeloads,
   ExerciseFailures,
+  RepSchemes,
   UnitSystem,
   UserAccessoryExercise,
   Weights,
@@ -29,6 +35,10 @@ interface WorkoutContextType {
   setUnitSystem: (unit: UnitSystem) => void;
   accessories: UserAccessoryExercise[];
   setAccessories: (accessories: UserAccessoryExercise[]) => void;
+  accessoryColors: Record<string, string>;
+  setAccessoryColors: (colors: Record<string, string>) => void;
+  repSchemes: RepSchemes;
+  setRepSchemes: (schemes: RepSchemes) => void;
   isLoading: boolean;
 }
 
@@ -40,7 +50,9 @@ const STORAGE_KEYS = {
   EXERCISE_FAILURES: "stronglifts_exercise_failures",
   EXERCISE_DELOADS: "stronglifts_exercise_deloads",
   UNIT_SYSTEM: "stronglifts_unit_system",
-  ACCESSORIES: "stronglifts_accessories"
+  ACCESSORIES: "stronglifts_accessories",
+  ACCESSORY_COLORS: "stronglifts_accessory_colors",
+  REP_SCHEMES: "stronglifts_rep_schemes"
 };
 
 export function WorkoutProvider({ children }: { children: ReactNode }) {
@@ -56,6 +68,11 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
   const [accessories, setAccessoriesState] = useState<UserAccessoryExercise[]>(
     []
   );
+  const [accessoryColors, setAccessoryColorsState] = useState<
+    Record<string, string>
+  >({});
+  const [repSchemes, setRepSchemesState] =
+    useState<RepSchemes>(defaultRepSchemes);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -70,14 +87,18 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         savedFailures,
         savedDeloads,
         savedUnitSystem,
-        savedAccessories
+        savedAccessories,
+        savedAccessoryColors,
+        savedRepSchemes
       ] = await Promise.all([
         AsyncStorage.getItem(STORAGE_KEYS.WEIGHTS),
         AsyncStorage.getItem(STORAGE_KEYS.WORKOUT_HISTORY),
         AsyncStorage.getItem(STORAGE_KEYS.EXERCISE_FAILURES),
         AsyncStorage.getItem(STORAGE_KEYS.EXERCISE_DELOADS),
         AsyncStorage.getItem(STORAGE_KEYS.UNIT_SYSTEM),
-        AsyncStorage.getItem(STORAGE_KEYS.ACCESSORIES)
+        AsyncStorage.getItem(STORAGE_KEYS.ACCESSORIES),
+        AsyncStorage.getItem(STORAGE_KEYS.ACCESSORY_COLORS),
+        AsyncStorage.getItem(STORAGE_KEYS.REP_SCHEMES)
       ]);
 
       if (savedUnitSystem) {
@@ -108,6 +129,16 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
       if (savedAccessories) {
         const parsedAccessories = JSON.parse(savedAccessories);
         setAccessoriesState(parsedAccessories);
+      }
+
+      if (savedAccessoryColors) {
+        const parsedColors = JSON.parse(savedAccessoryColors);
+        setAccessoryColorsState(parsedColors);
+      }
+
+      if (savedRepSchemes) {
+        const parsedSchemes = JSON.parse(savedRepSchemes);
+        setRepSchemesState(parsedSchemes);
       }
     } catch (error) {
       console.error("Failed to load data from storage:", error);
@@ -181,6 +212,32 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const setAccessoryColors = async (newColors: Record<string, string>) => {
+    try {
+      await AsyncStorage.setItem(
+        STORAGE_KEYS.ACCESSORY_COLORS,
+        JSON.stringify(newColors)
+      );
+      setAccessoryColorsState(newColors);
+    } catch (error) {
+      console.error("Failed to save accessory colors:", error);
+      setAccessoryColorsState(newColors);
+    }
+  };
+
+  const setRepSchemes = async (newSchemes: RepSchemes) => {
+    try {
+      await AsyncStorage.setItem(
+        STORAGE_KEYS.REP_SCHEMES,
+        JSON.stringify(newSchemes)
+      );
+      setRepSchemesState(newSchemes);
+    } catch (error) {
+      console.error("Failed to save rep schemes:", error);
+      setRepSchemesState(newSchemes);
+    }
+  };
+
   const setWorkoutHistory = (
     updateFn: React.SetStateAction<WorkoutHistoryItem[]>
   ) => {
@@ -214,6 +271,10 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         setUnitSystem,
         accessories,
         setAccessories,
+        accessoryColors,
+        setAccessoryColors,
+        repSchemes,
+        setRepSchemes,
         isLoading
       }}
     >

@@ -19,11 +19,10 @@ import {
   createDefaultSession,
   DELOAD_PERCENTAGE,
   exerciseNames,
+  getTargetRepsForScheme,
   MAX_FAILURES_BEFORE_DELOAD,
   MINIMUM_INCREMENT,
-  PROGRESSION_INCREMENTS,
-  TARGET_REPS,
-  workouts
+  PROGRESSION_INCREMENTS
 } from "../constants";
 import { useTheme } from "../ThemeContext";
 import { createThemedStyles } from "../themedStyles";
@@ -64,7 +63,8 @@ const StrongLifts5x5App: React.FC = () => {
     setExerciseDeloads,
     unitSystem,
     accessories,
-    setAccessories
+    setAccessories,
+    repSchemes
   } = useWorkout();
 
   const { theme, isDark } = useTheme();
@@ -77,7 +77,7 @@ const StrongLifts5x5App: React.FC = () => {
   const [endsAt, setEndsAt] = useState<number | null>(null);
   const [scheduledId, setScheduledId] = useState<string | null>(null);
   const [currentSession, setCurrentSession] = useState<CurrentSession>(
-    createDefaultSession()
+    createDefaultSession(repSchemes)
   );
   const [accessorySession, setAccessorySession] =
     useState<AccessorySessionData>({});
@@ -108,8 +108,12 @@ const StrongLifts5x5App: React.FC = () => {
     setupNotifications();
     setHasShownDeloadAlert(false);
     checkForDeloads();
+  }, [currentWorkout]);
+
+  useEffect(() => {
     initializeAccessorySession();
-  }, [currentWorkout, accessories]);
+    setCurrentSession(createDefaultSession(repSchemes));
+  }, [currentWorkout, accessories, repSchemes]);
 
   const initializeAccessorySession = () => {
     const newAccessorySession: AccessorySessionData = {};
@@ -258,13 +262,14 @@ const StrongLifts5x5App: React.FC = () => {
       let updatedSession = { ...prevSession };
       for (const ex of exercises) {
         const currentSets = prevSession[ex].sets;
-        if (ex === "deadlift") {
+        const scheme = repSchemes[ex];
+        if (scheme === "1x5") {
           if (currentSets[0] === -1) {
             updatedSession = {
               ...updatedSession,
               [ex]: {
                 ...updatedSession[ex],
-                sets: [5, ...currentSets.slice(1)]
+                sets: [5]
               }
             };
             foundEmptySet = true;
@@ -305,7 +310,7 @@ const StrongLifts5x5App: React.FC = () => {
 
   const checkForDeloads = (): void => {
     if (hasShownDeloadAlert) return;
-    const exercises = workouts[currentWorkout];
+    const exercises = getCurrentExercises();
     const exercisesToDeload: Array<{
       exercise: ExerciseKey;
       oldWeight: number;
@@ -342,7 +347,7 @@ const StrongLifts5x5App: React.FC = () => {
         "Deload Recommended",
         `After 3 failed sessions, these exercises should be deloaded by 10%:\n\n${deloadText}`,
         [
-          { text: "yolo" },
+          { text: "yolo", style: "cancel" },
           { text: "Accept", onPress: () => applyDeloads(exercisesToDeload) }
         ]
       );
@@ -432,21 +437,20 @@ const StrongLifts5x5App: React.FC = () => {
   const isExerciseCompleted = (exercise: ExerciseKey): boolean => {
     const sets = currentSession[exercise].sets;
     const totalReps = sets.reduce((sum, reps) => sum + Math.max(0, reps), 0);
-    const targetReps = TARGET_REPS[exercise];
+    const targetReps = getTargetRepsForScheme(repSchemes[exercise]);
     return totalReps >= targetReps;
   };
 
   const hasIncompleteSets = (): boolean => {
-    const exercises = workouts[currentWorkout];
+    const exercises = getCurrentExercises();
     return exercises.some((exercise: ExerciseKey) => {
       const sets = currentSession[exercise].sets;
-      if (exercise === "deadlift") return sets[0] === -1;
-      else return sets.some((reps) => reps === -1);
+      return sets.some((reps) => reps === -1);
     });
   };
 
   const finishWorkout = (): void => {
-    const exercises = workouts[currentWorkout];
+    const exercises = getCurrentExercises();
     const newWeights = { ...weights };
     const newFailures = { ...exerciseFailures };
     const newDeloads = { ...exerciseDeloads };
@@ -477,7 +481,8 @@ const StrongLifts5x5App: React.FC = () => {
         name: exerciseNames[ex],
         weight: weights[ex],
         sets: currentSession[ex].sets.map((reps) => Math.max(0, reps)),
-        completed: isExerciseCompleted(ex)
+        completed: isExerciseCompleted(ex),
+        repScheme: repSchemes[ex]
       })),
       accessories: accessoriesData.length > 0 ? accessoriesData : undefined,
       bodyweight: bodyweight ? parseFloat(bodyweight) : undefined,
@@ -487,7 +492,7 @@ const StrongLifts5x5App: React.FC = () => {
     setWeights(newWeights);
     setExerciseFailures(newFailures);
     setExerciseDeloads(newDeloads);
-    setCurrentSession(createDefaultSession());
+    setCurrentSession(createDefaultSession(repSchemes));
     setCurrentWorkout(currentWorkout === "A" ? "B" : "A");
     setBodyweight("");
     setShowBodyweightInput(false);
@@ -507,7 +512,13 @@ const StrongLifts5x5App: React.FC = () => {
     }
   };
 
-  const getCurrentExercises = (): ExerciseKey[] => workouts[currentWorkout];
+  const getCurrentExercises = (): ExerciseKey[] => {
+    const exercises =
+      currentWorkout === "A"
+        ? (["squat", "bench", "row"] as ExerciseKey[])
+        : (["squat", "ohp", "deadlift"] as ExerciseKey[]);
+    return exercises;
+  };
 
   const startEditingWeight = (exercise: ExerciseKey): void => {
     setEditingWeight(exercise);
@@ -677,9 +688,14 @@ const StrongLifts5x5App: React.FC = () => {
           {getCurrentExercises().map((exercise: ExerciseKey) => (
             <View key={exercise} style={styles.exerciseContainer}>
               <View style={styles.exerciseHeader}>
-                <Text style={styles.exerciseName}>
-                  {exerciseNames[exercise]}
-                </Text>
+                <View>
+                  <Text style={styles.exerciseName}>
+                    {exerciseNames[exercise]}
+                  </Text>
+                  <Text style={{ fontSize: 11, color: theme.textSecondary }}>
+                    {repSchemes[exercise]}
+                  </Text>
+                </View>
                 {editingWeight === exercise ? (
                   <View style={styles.weightEditContainer}>
                     <TextInput
@@ -747,7 +763,6 @@ const StrongLifts5x5App: React.FC = () => {
               <View style={styles.setsContainer}>
                 {currentSession[exercise].sets.map(
                   (reps: number, setIndex: number) => {
-                    if (exercise === "deadlift" && setIndex > 0) return null;
                     return (
                       <View key={setIndex} style={styles.setContainer}>
                         <Text style={styles.setLabel}>Set {setIndex + 1}</Text>

@@ -10,9 +10,10 @@ import {
   View
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { exerciseNames } from "../constants";
 import { useTheme } from "../ThemeContext";
 import { createThemedStyles } from "../themedStyles";
-import { ExerciseKey, UnitSystem } from "../types";
+import { ExerciseKey, RepScheme, UnitSystem } from "../types";
 import { useWorkout } from "../WorkoutContext";
 
 const lbsToKg = (lbs: number): number => {
@@ -30,7 +31,9 @@ const SettingsApp: React.FC = () => {
     weights,
     setWeights,
     accessories,
-    setAccessories
+    setAccessories,
+    repSchemes,
+    setRepSchemes
   } = useWorkout();
   const { theme, themeMode, setThemeMode, isDark } = useTheme();
   const styles = createThemedStyles(theme);
@@ -72,6 +75,12 @@ const SettingsApp: React.FC = () => {
         }
       ]
     );
+  };
+
+  const handleRepSchemeChange = (exercise: ExerciseKey, scheme: RepScheme) => {
+    const newSchemes = { ...repSchemes };
+    newSchemes[exercise] = scheme;
+    setRepSchemes(newSchemes);
   };
 
   return (
@@ -157,18 +166,6 @@ const SettingsApp: React.FC = () => {
                 </Text>
               </TouchableOpacity>
             </View>
-            <Text
-              style={{
-                marginTop: 12,
-                fontSize: 12,
-                color: theme.textSecondary,
-                textAlign: "center"
-              }}
-            >
-              {themeMode === "system"
-                ? `Following system (currently ${isDark ? "dark" : "light"})`
-                : `Theme set to ${themeMode}`}
-            </Text>
           </View>
         </View>
 
@@ -233,8 +230,64 @@ const SettingsApp: React.FC = () => {
                 textAlign: "center"
               }}
             >
-              Changing units will offer to convert your current weights
+              Changing units will convert all your current weights
             </Text>
+          </View>
+        </View>
+
+        <View style={styles.weightsContainer}>
+          <View style={styles.weightsHeader}>
+            <Text style={styles.weightsTitle}>Rep Schemes</Text>
+          </View>
+          <View style={{ padding: 16, gap: 16 }}>
+            {(Object.entries(exerciseNames) as [ExerciseKey, string][]).map(
+              ([key, name]) => (
+                <View key={key}>
+                  <Text
+                    style={{
+                      fontSize: 14,
+                      fontWeight: "600",
+                      color: theme.text,
+                      marginBottom: 8
+                    }}
+                  >
+                    {name}
+                  </Text>
+                  <View style={{ flexDirection: "row", gap: 8 }}>
+                    {(key === "deadlift"
+                      ? (["1x5", "3x5", "5x5"] as RepScheme[])
+                      : (["5x5", "3x5", "1x5"] as RepScheme[])
+                    ).map((scheme) => (
+                      <TouchableOpacity
+                        key={scheme}
+                        onPress={() => handleRepSchemeChange(key, scheme)}
+                        style={{
+                          flex: 1,
+                          backgroundColor:
+                            repSchemes[key] === scheme
+                              ? theme.primary
+                              : theme.surfaceSecondary,
+                          padding: 12,
+                          borderRadius: 8,
+                          alignItems: "center"
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: 14,
+                            fontWeight: "600",
+                            color:
+                              repSchemes[key] === scheme ? "white" : theme.text
+                          }}
+                        >
+                          {scheme}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              )
+            )}
           </View>
         </View>
 
