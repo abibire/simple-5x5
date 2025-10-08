@@ -218,7 +218,9 @@ const AccessoriesApp: React.FC = () => {
                                   color: theme.text,
                                   textAlign: "center"
                                 }}
-                                value={config.sets.toString()}
+                                value={(
+                                  config.sets || exercise.defaultSets
+                                ).toString()}
                                 onChangeText={(text) => {
                                   if (text === "") return;
                                   const num = parseInt(text);
@@ -256,7 +258,9 @@ const AccessoriesApp: React.FC = () => {
                                   color: theme.text,
                                   textAlign: "center"
                                 }}
-                                value={config.reps.toString()}
+                                value={(
+                                  config.reps || exercise.defaultReps
+                                ).toString()}
                                 onChangeText={(text) => {
                                   if (text === "") return;
                                   const num = parseInt(text);
@@ -294,7 +298,9 @@ const AccessoriesApp: React.FC = () => {
                                   color: theme.text,
                                   textAlign: "center"
                                 }}
-                                value={config.rest.toString()}
+                                value={(
+                                  config.rest ?? exercise.defaultRest
+                                ).toString()}
                                 onChangeText={(text) => {
                                   if (text === "") {
                                     updateExerciseConfig(
@@ -341,7 +347,9 @@ const AccessoriesApp: React.FC = () => {
                                   color: theme.text,
                                   textAlign: "center"
                                 }}
-                                value={config.weight.toString()}
+                                value={(
+                                  config.weight ?? exercise.defaultWeight
+                                ).toString()}
                                 onChangeText={(text) => {
                                   if (text === "") {
                                     updateExerciseConfig(
@@ -381,7 +389,9 @@ const AccessoriesApp: React.FC = () => {
                                 onPress={() => toggleWorkout(exercise.id, "A")}
                                 style={{
                                   flex: 1,
-                                  backgroundColor: config.workouts.includes("A")
+                                  backgroundColor: (
+                                    config.workouts || ["A", "B"]
+                                  ).includes("A")
                                     ? theme.primary
                                     : theme.surfaceSecondary,
                                   padding: 12,
@@ -393,7 +403,9 @@ const AccessoriesApp: React.FC = () => {
                                   style={{
                                     fontSize: 14,
                                     fontWeight: "600",
-                                    color: config.workouts.includes("A")
+                                    color: (
+                                      config.workouts || ["A", "B"]
+                                    ).includes("A")
                                       ? "white"
                                       : theme.text
                                   }}
@@ -405,7 +417,9 @@ const AccessoriesApp: React.FC = () => {
                                 onPress={() => toggleWorkout(exercise.id, "B")}
                                 style={{
                                   flex: 1,
-                                  backgroundColor: config.workouts.includes("B")
+                                  backgroundColor: (
+                                    config.workouts || ["A", "B"]
+                                  ).includes("B")
                                     ? theme.primary
                                     : theme.surfaceSecondary,
                                   padding: 12,
@@ -417,7 +431,9 @@ const AccessoriesApp: React.FC = () => {
                                   style={{
                                     fontSize: 14,
                                     fontWeight: "600",
-                                    color: config.workouts.includes("B")
+                                    color: (
+                                      config.workouts || ["A", "B"]
+                                    ).includes("B")
                                       ? "white"
                                       : theme.text
                                   }}

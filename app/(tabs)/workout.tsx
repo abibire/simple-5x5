@@ -469,7 +469,7 @@ const StrongLifts5x5App: React.FC = () => {
     const accessoriesData = activeAccessories.map((acc) => ({
       id: acc.id,
       name: acc.name,
-      weight: acc.weight,
+      weight: acc.weight ?? 0,
       sets: accessorySession[acc.id]?.map((reps) => Math.max(0, reps)) || [],
       targetReps: acc.reps
     }));
@@ -800,111 +800,121 @@ const StrongLifts5x5App: React.FC = () => {
             <View style={styles.weightsHeader}>
               <Text style={styles.weightsTitle}>Accessories</Text>
             </View>
-            {activeAccessories.map((accessory: UserAccessoryExercise) => (
-              <View key={accessory.id} style={styles.exerciseContainer}>
-                <View style={styles.exerciseHeader}>
-                  <Text style={styles.exerciseName}>{accessory.name}</Text>
-                  {editingAccessoryWeight[accessory.id] ? (
-                    <View style={styles.weightEditContainer}>
-                      <TextInput
-                        style={styles.weightInput}
-                        value={accessoryWeightInput[accessory.id]}
-                        onChangeText={(text) =>
-                          setAccessoryWeightInput({
-                            ...accessoryWeightInput,
-                            [accessory.id]: text
-                          })
-                        }
-                        keyboardType="numeric"
-                        selectTextOnFocus
-                        autoFocus
-                        onSubmitEditing={() =>
-                          confirmAccessoryWeightEdit(accessory.id)
-                        }
-                        placeholderTextColor={theme.textSecondary}
-                      />
-                      <Text style={styles.exerciseWeight}>{unitSystem}</Text>
-                      <TouchableOpacity
-                        onPress={() => confirmAccessoryWeightEdit(accessory.id)}
-                        style={[
-                          styles.weightEditButton,
-                          styles.weightEditButtonConfirm
-                        ]}
-                      >
-                        <Text style={styles.weightEditButtonText}>✓</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        onPress={() => cancelAccessoryWeightEdit(accessory.id)}
-                        style={[
-                          styles.weightEditButton,
-                          styles.weightEditButtonCancel
-                        ]}
-                      >
-                        <Text style={styles.weightEditButtonText}>✕</Text>
-                      </TouchableOpacity>
-                    </View>
-                  ) : (
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        gap: 8
-                      }}
-                    >
-                      <TouchableOpacity
-                        onPress={() =>
-                          startEditingAccessoryWeight(
-                            accessory.id,
-                            accessory.weight
-                          )
-                        }
-                        activeOpacity={0.6}
-                      >
-                        <Text style={styles.exerciseWeightClickable}>
-                          {formatWeight(accessory.weight, unitSystem)}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
-                </View>
-                <View style={styles.setsContainer}>
-                  {accessorySession[accessory.id]?.map(
-                    (reps: number, setIndex: number) => (
-                      <View key={setIndex} style={styles.setContainer}>
-                        <Text style={styles.setLabel}>Set {setIndex + 1}</Text>
+            {activeAccessories.map((accessory: UserAccessoryExercise) => {
+              const safeWeight = accessory.weight ?? 0;
+
+              return (
+                <View key={accessory.id} style={styles.exerciseContainer}>
+                  <View style={styles.exerciseHeader}>
+                    <Text style={styles.exerciseName}>{accessory.name}</Text>
+                    {editingAccessoryWeight[accessory.id] ? (
+                      <View style={styles.weightEditContainer}>
+                        <TextInput
+                          style={styles.weightInput}
+                          value={accessoryWeightInput[accessory.id]}
+                          onChangeText={(text) =>
+                            setAccessoryWeightInput({
+                              ...accessoryWeightInput,
+                              [accessory.id]: text
+                            })
+                          }
+                          keyboardType="numeric"
+                          selectTextOnFocus
+                          autoFocus
+                          onSubmitEditing={() =>
+                            confirmAccessoryWeightEdit(accessory.id)
+                          }
+                          placeholderTextColor={theme.textSecondary}
+                        />
+                        <Text style={styles.exerciseWeight}>{unitSystem}</Text>
                         <TouchableOpacity
                           onPress={() =>
-                            toggleAccessorySet(
-                              accessory.id,
-                              setIndex,
-                              accessory.reps,
-                              accessory.rest
-                            )
+                            confirmAccessoryWeightEdit(accessory.id)
                           }
                           style={[
-                            styles.repButton,
-                            getRepButtonStyle(reps) === "complete"
-                              ? styles.repButtonComplete
-                              : styles.repButtonEmpty
+                            styles.weightEditButton,
+                            styles.weightEditButtonConfirm
                           ]}
                         >
-                          <Text
-                            style={[
-                              styles.repButtonText,
-                              getRepButtonTextStyle(reps) === "complete"
-                                ? styles.repButtonTextComplete
-                                : styles.repButtonTextEmpty
-                            ]}
-                          >
-                            {reps >= 0 ? reps.toString() : ""}
+                          <Text style={styles.weightEditButtonText}>✓</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() =>
+                            cancelAccessoryWeightEdit(accessory.id)
+                          }
+                          style={[
+                            styles.weightEditButton,
+                            styles.weightEditButtonCancel
+                          ]}
+                        >
+                          <Text style={styles.weightEditButtonText}>✕</Text>
+                        </TouchableOpacity>
+                      </View>
+                    ) : (
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          gap: 8
+                        }}
+                      >
+                        <TouchableOpacity
+                          onPress={() =>
+                            startEditingAccessoryWeight(
+                              accessory.id,
+                              safeWeight
+                            )
+                          }
+                          activeOpacity={0.6}
+                        >
+                          <Text style={styles.exerciseWeightClickable}>
+                            {formatWeight(safeWeight, unitSystem)}
                           </Text>
                         </TouchableOpacity>
                       </View>
-                    )
-                  )}
+                    )}
+                  </View>
+                  <View style={styles.setsContainer}>
+                    {accessorySession[accessory.id]?.map(
+                      (reps: number, setIndex: number) => (
+                        <View key={setIndex} style={styles.setContainer}>
+                          <Text style={styles.setLabel}>
+                            Set {setIndex + 1}
+                          </Text>
+                          <TouchableOpacity
+                            onPress={() =>
+                              toggleAccessorySet(
+                                accessory.id,
+                                setIndex,
+                                accessory.reps,
+                                accessory.rest
+                              )
+                            }
+                            style={[
+                              styles.repButton,
+                              getRepButtonStyle(reps) === "complete"
+                                ? styles.repButtonComplete
+                                : styles.repButtonEmpty
+                            ]}
+                          >
+                            <Text
+                              style={[
+                                styles.repButtonText,
+                                getRepButtonTextStyle(reps) === "complete"
+                                  ? styles.repButtonTextComplete
+                                  : styles.repButtonTextEmpty
+                              ]}
+                            >
+                              {reps >= 0 ? reps.toString() : ""}
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      )
+                    )}
+                  </View>
                 </View>
-              </View>
-            ))}
+              );
+            })}
           </View>
         )}
 
