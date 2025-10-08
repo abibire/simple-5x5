@@ -52,7 +52,7 @@ interface AccessoryWeightInput {
   [key: string]: string;
 }
 
-const StrongLifts5x5App: React.FC = () => {
+const Simple5x5App: React.FC = () => {
   const {
     weights,
     setWeights,
@@ -938,12 +938,12 @@ const StrongLifts5x5App: React.FC = () => {
   );
 };
 
-const StrongLifts5x5: React.FC = () => {
+const Simple5x5: React.FC = () => {
   return (
     <SafeAreaProvider>
-      <StrongLifts5x5App />
+      <Simple5x5App />
     </SafeAreaProvider>
   );
 };
 
-export default StrongLifts5x5;
+export default Simple5x5;
