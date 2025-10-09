@@ -2,7 +2,6 @@ import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
 import "react-native-reanimated";
 import { ThemeProvider as AppThemeProvider } from "./ThemeContext";
 import { WorkoutProvider } from "./WorkoutContext";
@@ -26,18 +25,6 @@ const lightTheme = {
 };
 
 export default function RootLayout() {
-  useEffect(() => {
-    async function prepare() {
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-      } finally {
-        await SplashScreen.hideAsync();
-      }
-    }
-
-    prepare();
-  }, []);
-
   return (
     <AppThemeProvider>
       <WorkoutProvider>
