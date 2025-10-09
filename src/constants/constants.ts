@@ -8,7 +8,7 @@ import {
   UnitSystem,
   Weights,
   WorkoutType
-} from "./types";
+} from "@/src/types/types";
 
 export const workouts: Record<WorkoutType, ExerciseKey[]> = {
   A: ["squat", "bench", "row"],

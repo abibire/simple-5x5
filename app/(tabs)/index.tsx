@@ -18,17 +18,17 @@ import {
   defaultFailures,
   defaultWeights,
   exerciseNames
-} from "../constants";
-import { useTheme } from "../ThemeContext";
-import { createThemedStyles } from "../themedStyles";
+} from "@/src/constants/constants";
+import { useTheme } from "@/src/contexts/ThemeContext";
+import { createThemedStyles } from "@/src/styles/themedStyles";
 import {
   AccessoryWorkoutExercise,
   ExerciseKey,
   WorkoutExercise,
   WorkoutHistoryItem
-} from "../types";
-import { convertWeight, formatWeight } from "../utils";
-import { useWorkout } from "../WorkoutContext";
+} from "@/src/types/types";
+import { convertWeight, formatWeight } from "@/src/utils/utils";
+import { useWorkout } from "@/src/contexts/WorkoutContext";
 
 const TUTORIAL_KEY = "lifts_tutorial_seen";
 

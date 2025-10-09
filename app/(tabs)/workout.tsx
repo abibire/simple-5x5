@@ -23,23 +23,23 @@ import {
   MAX_FAILURES_BEFORE_DELOAD,
   MINIMUM_INCREMENT,
   PROGRESSION_INCREMENTS
-} from "../constants";
-import { handleWorkoutCompletion } from "../reviewPrompt";
-import { useTheme } from "../ThemeContext";
-import { createThemedStyles } from "../themedStyles";
+} from "@/src/constants/constants";
+import { handleWorkoutCompletion } from "@/src/utils/reviewPrompt";
+import { useTheme } from "@/src/contexts/ThemeContext";
+import { createThemedStyles } from "@/src/styles/themedStyles";
 import {
   CurrentSession,
   ExerciseKey,
   UserAccessoryExercise,
   WorkoutType
-} from "../types";
+} from "@/src/types/types";
 import {
   formatTime,
   formatWeight,
   getRepButtonStyle,
   getRepButtonTextStyle
-} from "../utils";
-import { useWorkout } from "../WorkoutContext";
+} from "@/src/utils/utils";
+import { useWorkout } from "@/src/contexts/WorkoutContext";
 
 interface AccessorySessionData {
   [key: string]: number[];

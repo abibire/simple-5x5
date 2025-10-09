@@ -11,7 +11,7 @@ import {
   defaultFailures,
   defaultRepSchemes,
   defaultWeights
-} from "./constants";
+} from "@/src/constants/constants";
 import {
   ExerciseDeloads,
   ExerciseFailures,
@@ -20,7 +20,7 @@ import {
   UserAccessoryExercise,
   Weights,
   WorkoutHistoryItem
-} from "./types";
+} from "@/src/types/types";
 
 interface WorkoutContextType {
   weights: Weights;

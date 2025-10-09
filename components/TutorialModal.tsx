@@ -2,7 +2,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Octicons from "@expo/vector-icons/Octicons";
 import React from "react";
 import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { useTheme } from "../app/ThemeContext";
+import { useTheme } from "@/src/contexts/ThemeContext";
 import { createTutorialStyles } from "./TutorialModal.styles";
 
 interface TutorialModalProps {

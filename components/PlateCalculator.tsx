@@ -1,9 +1,9 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
 import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { useTheme } from "../app/ThemeContext";
-import { UnitSystem } from "../app/types";
-import { formatWeight } from "../app/utils";
+import { useTheme } from "@/src/contexts/ThemeContext";
+import { UnitSystem } from "@/src/types/types";
+import { formatWeight } from "@/src/utils/utils";
 import { createPlateStyles } from "./PlateCalculator.styles";
 
 interface PlateCalculatorProps {

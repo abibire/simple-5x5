@@ -10,11 +10,11 @@ import {
   View
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { ACCESSORY_EXERCISES, CATEGORY_NAMES } from "./accessoryExercises";
-import { useTheme } from "./ThemeContext";
-import { createThemedStyles } from "./themedStyles";
-import { AccessoryCategory, UserAccessoryExercise } from "./types";
-import { useWorkout } from "./WorkoutContext";
+import { ACCESSORY_EXERCISES, CATEGORY_NAMES } from "@/src/constants/accessoryExercises";
+import { useTheme } from "@/src/contexts/ThemeContext";
+import { createThemedStyles } from "@/src/styles/themedStyles";
+import { AccessoryCategory, UserAccessoryExercise } from "@/src/types/types";
+import { useWorkout } from "@/src/contexts/WorkoutContext";
 
 const AccessoriesApp: React.FC = () => {
   const { theme, isDark } = useTheme();

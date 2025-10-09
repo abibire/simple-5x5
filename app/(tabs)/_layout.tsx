@@ -3,7 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Tabs } from "expo-router";
 import React from "react";
-import { useTheme } from "../ThemeContext";
+import { useTheme } from "@/src/contexts/ThemeContext";
 
 export default function TabLayout() {
   const { theme } = useTheme();

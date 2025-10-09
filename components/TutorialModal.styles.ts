@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { Theme } from "../app/ThemeContext";
+import { Theme } from "@/src/contexts/ThemeContext";
 
 export const createTutorialStyles = (theme: Theme) =>
   StyleSheet.create({

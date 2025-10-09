@@ -10,11 +10,11 @@ import {
   View
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { exerciseNames } from "../constants";
-import { useTheme } from "../ThemeContext";
-import { createThemedStyles } from "../themedStyles";
-import { ExerciseKey, RepScheme, UnitSystem } from "../types";
-import { useWorkout } from "../WorkoutContext";
+import { exerciseNames } from "@/src/constants/constants";
+import { useTheme } from "@/src/contexts/ThemeContext";
+import { createThemedStyles } from "@/src/styles/themedStyles";
+import { ExerciseKey, RepScheme, UnitSystem } from "@/src/types/types";
+import { useWorkout } from "@/src/contexts/WorkoutContext";
 
 const lbsToKg = (lbs: number): number => {
   return Math.round((lbs * 0.453592) / 1.25) * 1.25;

@@ -1,4 +1,4 @@
-import { AccessoryCategory, AccessoryExercise } from "./types";
+import { AccessoryCategory, AccessoryExercise } from "@/src/types/types";
 
 export const ACCESSORY_EXERCISES: AccessoryExercise[] = [
   {

@@ -1,4 +1,4 @@
-import { UnitSystem } from "./types";
+import { UnitSystem } from "@/src/types/types";
 
 export const formatTime = (seconds: number): string => {
   const mins = Math.floor(seconds / 60);

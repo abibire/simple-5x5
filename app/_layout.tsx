@@ -4,8 +4,8 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import "react-native-reanimated";
-import { ThemeProvider as AppThemeProvider } from "./ThemeContext";
-import { WorkoutProvider, useWorkout } from "./WorkoutContext";
+import { ThemeProvider as AppThemeProvider } from "@/src/contexts/ThemeContext";
+import { WorkoutProvider, useWorkout } from "@/src/contexts/WorkoutContext";
 
 SplashScreen.preventAutoHideAsync();
 
