@@ -2,9 +2,10 @@ import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
+import { useEffect, useState } from "react";
 import "react-native-reanimated";
 import { ThemeProvider as AppThemeProvider } from "./ThemeContext";
-import { WorkoutProvider } from "./WorkoutContext";
+import { WorkoutProvider, useWorkout } from "./WorkoutContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -24,30 +25,58 @@ const lightTheme = {
   }
 };
 
+function RootLayoutContent() {
+  const { isLoading } = useWorkout();
+  const [appReady, setAppReady] = useState(false);
+
+  useEffect(() => {
+    async function prepare() {
+      try {
+        while (isLoading) {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+      } finally {
+        setAppReady(true);
+        await SplashScreen.hideAsync();
+      }
+    }
+
+    prepare();
+  }, [isLoading]);
+
+  if (!appReady) {
+    return null;
+  }
+
+  return (
+    <ThemeProvider value={lightTheme}>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="progress"
+          options={{
+            presentation: "card",
+            headerShown: false
+          }}
+        />
+        <Stack.Screen
+          name="accessories"
+          options={{
+            presentation: "card",
+            headerShown: false
+          }}
+        />
+      </Stack>
+      <StatusBar style="light" backgroundColor="#0f63f9" />
+    </ThemeProvider>
+  );
+}
+
 export default function RootLayout() {
   return (
     <AppThemeProvider>
       <WorkoutProvider>
-        <ThemeProvider value={lightTheme}>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="progress"
-              options={{
-                presentation: "card",
-                headerShown: false
-              }}
-            />
-            <Stack.Screen
-              name="accessories"
-              options={{
-                presentation: "card",
-                headerShown: false
-              }}
-            />
-          </Stack>
-          <StatusBar style="light" backgroundColor="#0f63f9" />
-        </ThemeProvider>
+        <RootLayoutContent />
       </WorkoutProvider>
     </AppThemeProvider>
   );

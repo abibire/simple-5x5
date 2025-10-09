@@ -65,14 +65,6 @@ const HomeApp: React.FC = () => {
     );
   };
 
-  if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Loading...</Text>
-      </View>
-    );
-  }
-
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
       <View style={styles.header}>

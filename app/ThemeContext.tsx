@@ -105,10 +105,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const theme = useMemo(() => (isDark ? darkTheme : lightTheme), [isDark]);
 
-  if (isLoading) {
-    return null;
-  }
-
   return (
     <ThemeContext.Provider value={{ theme, themeMode, setThemeMode, isDark }}>
       {children}
