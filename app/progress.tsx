@@ -19,7 +19,7 @@ import { convertWeight } from "./utils";
 import { useWorkout } from "./WorkoutContext";
 
 const EXERCISE_COLORS: Record<ExerciseKey | "bodyweight", string> = {
-  squat: "#2563eb",
+  squat: "#0f63f9",
   bench: "#dc2626",
   row: "#16a34a",
   ohp: "#f59e0b",

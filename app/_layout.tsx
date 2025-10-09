@@ -1,9 +1,13 @@
 import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
 import "react-native-reanimated";
 import { ThemeProvider as AppThemeProvider } from "./ThemeContext";
 import { WorkoutProvider } from "./WorkoutContext";
+
+SplashScreen.preventAutoHideAsync();
 
 export const unstable_settings = {
   anchor: "(tabs)"
@@ -17,11 +21,23 @@ const lightTheme = {
     card: "#ffffff",
     text: "#000000",
     border: "#e5e7eb",
-    notification: "#2563eb"
+    notification: "#0f63f9"
   }
 };
 
 export default function RootLayout() {
+  useEffect(() => {
+    async function prepare() {
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      } finally {
+        await SplashScreen.hideAsync();
+      }
+    }
+
+    prepare();
+  }, []);
+
   return (
     <AppThemeProvider>
       <WorkoutProvider>
@@ -43,7 +59,7 @@ export default function RootLayout() {
               }}
             />
           </Stack>
-          <StatusBar style="light" backgroundColor="#2563eb" />
+          <StatusBar style="light" backgroundColor="#0f63f9" />
         </ThemeProvider>
       </WorkoutProvider>
     </AppThemeProvider>

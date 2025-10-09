@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, {
+import {
   createContext,
   ReactNode,
   useContext,
@@ -28,7 +28,7 @@ const lightTheme: Theme = {
   background: "#f9fafb",
   surface: "#ffffff",
   surfaceSecondary: "#f9fafb",
-  primary: "#2563eb",
+  primary: "#0f63f9",
   text: "#000000",
   textSecondary: "#6b7280",
   border: "#e5e7eb",
