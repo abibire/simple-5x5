@@ -45,14 +45,14 @@ interface WorkoutContextType {
 const WorkoutContext = createContext<WorkoutContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
-  WEIGHTS: "stronglifts_weights",
-  WORKOUT_HISTORY: "stronglifts_workout_history",
-  EXERCISE_FAILURES: "stronglifts_exercise_failures",
-  EXERCISE_DELOADS: "stronglifts_exercise_deloads",
-  UNIT_SYSTEM: "stronglifts_unit_system",
-  ACCESSORIES: "stronglifts_accessories",
-  ACCESSORY_COLORS: "stronglifts_accessory_colors",
-  REP_SCHEMES: "stronglifts_rep_schemes"
+  WEIGHTS: "lifts_weights",
+  WORKOUT_HISTORY: "lifts_workout_history",
+  EXERCISE_FAILURES: "lifts_exercise_failures",
+  EXERCISE_DELOADS: "lifts_exercise_deloads",
+  UNIT_SYSTEM: "lifts_unit_system",
+  ACCESSORIES: "lifts_accessories",
+  ACCESSORY_COLORS: "lifts_accessory_colors",
+  REP_SCHEMES: "lifts_rep_schemes"
 };
 
 export function WorkoutProvider({ children }: { children: ReactNode }) {
