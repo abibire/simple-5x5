@@ -1,6 +1,9 @@
+import TutorialModal from "@/components/TutorialModal";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Octicons from "@expo/vector-icons/Octicons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   Alert,
   ScrollView,
@@ -27,6 +30,8 @@ import {
 import { convertWeight, formatWeight } from "../utils";
 import { useWorkout } from "../WorkoutContext";
 
+const TUTORIAL_KEY = "lifts_tutorial_seen";
+
 const HomeApp: React.FC = () => {
   const {
     weights,
@@ -35,12 +40,28 @@ const HomeApp: React.FC = () => {
     setWeights,
     setExerciseFailures,
     setExerciseDeloads,
-    unitSystem,
-    isLoading
+    unitSystem
   } = useWorkout();
 
   const { theme, isDark } = useTheme();
   const styles = createThemedStyles(theme);
+  const [showTutorial, setShowTutorial] = useState(false);
+
+  useEffect(() => {
+    checkFirstLaunch();
+  }, []);
+
+  const checkFirstLaunch = async () => {
+    try {
+      const hasSeenTutorial = await AsyncStorage.getItem(TUTORIAL_KEY);
+      if (!hasSeenTutorial) {
+        setShowTutorial(true);
+        await AsyncStorage.setItem(TUTORIAL_KEY, "true");
+      }
+    } catch (error) {
+      console.error("Failed to check tutorial status:", error);
+    }
+  };
 
   const confirmDeleteHistory = (): void => {
     Alert.alert(
@@ -200,6 +221,10 @@ const HomeApp: React.FC = () => {
           </View>
         )}
       </ScrollView>
+      <TutorialModal
+        visible={showTutorial}
+        onClose={() => setShowTutorial(false)}
+      />
     </View>
   );
 };

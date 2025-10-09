@@ -24,6 +24,7 @@ import {
   MINIMUM_INCREMENT,
   PROGRESSION_INCREMENTS
 } from "../constants";
+import { handleWorkoutCompletion } from "../reviewPrompt";
 import { useTheme } from "../ThemeContext";
 import { createThemedStyles } from "../themedStyles";
 import {
@@ -497,6 +498,9 @@ const Simple5x5App: React.FC = () => {
     setBodyweight("");
     setShowBodyweightInput(false);
     initializeAccessorySession();
+
+    handleWorkoutCompletion(TEST_MODE);
+
     router.push("/");
   };
 
