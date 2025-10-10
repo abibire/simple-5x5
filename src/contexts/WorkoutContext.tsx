@@ -1,11 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState
-} from "react";
 import {
   defaultDeloads,
   defaultFailures,
@@ -21,6 +13,14 @@ import {
   Weights,
   WorkoutHistoryItem
 } from "@/src/types/types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState
+} from "react";
 
 interface WorkoutContextType {
   weights: Weights;
@@ -40,6 +40,7 @@ interface WorkoutContextType {
   repSchemes: RepSchemes;
   setRepSchemes: (schemes: RepSchemes) => void;
   isLoading: boolean;
+  reloadData: () => Promise<void>;
 }
 
 const WorkoutContext = createContext<WorkoutContextType | undefined>(undefined);
@@ -241,7 +242,7 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
   const setWorkoutHistory = (
     updateFn: React.SetStateAction<WorkoutHistoryItem[]>
   ) => {
-    setWorkoutHistoryState((prevHistory) => {
+    setWorkoutHistoryState((prevHistory: WorkoutHistoryItem[]) => {
       const newHistory =
         typeof updateFn === "function" ? updateFn(prevHistory) : updateFn;
 
@@ -275,7 +276,8 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         setAccessoryColors,
         repSchemes,
         setRepSchemes,
-        isLoading
+        isLoading,
+        reloadData: loadData
       }}
     >
       {children}

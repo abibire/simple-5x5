@@ -1,5 +1,5 @@
-import { StyleSheet } from "react-native";
 import { Theme } from "@/src/contexts/ThemeContext";
+import { StyleSheet } from "react-native";
 
 export const createThemedStyles = (theme: Theme) =>
   StyleSheet.create({
@@ -362,5 +362,54 @@ export const createThemedStyles = (theme: Theme) =>
       fontSize: 16,
       color: theme.textSecondary,
       textAlign: "center"
+    },
+    dataManagementSection: {
+      backgroundColor: theme.surface,
+      marginTop: 1
+    },
+    dataManagementHeader: {
+      padding: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.border,
+      backgroundColor: theme.surfaceSecondary
+    },
+    dataManagementTitle: {
+      fontSize: 18,
+      fontWeight: "600",
+      color: theme.text
+    },
+    dataManagementButtons: {
+      padding: 16,
+      gap: 12
+    },
+    exportButton: {
+      backgroundColor: theme.primary,
+      padding: 16,
+      borderRadius: 8,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8
+    },
+    exportButtonText: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: "white"
+    },
+    importButton: {
+      backgroundColor: theme.surfaceSecondary,
+      padding: 16,
+      borderRadius: 8,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      borderWidth: 1,
+      borderColor: theme.border
+    },
+    importButtonText: {
+      fontSize: 16,
+      fontWeight: "600",
+      color: theme.text
     }
   });
