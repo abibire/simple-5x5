@@ -1,8 +1,6 @@
 # Simple 5×5 Workout Tracker
 
-Free, open-source 5×5 strength training app for iOS and Android. Built with React Native and Expo.
-
----
+Open-source 5×5 strength training app for iOS and Android. Built with React Native and Expo.
 
 ## Installation
 
@@ -15,8 +13,6 @@ Free, open-source 5×5 strength training app for iOS and Android. Built with Rea
 
 - App Store — _(URL)_
 
----
-
 ## Features
 
 - Workout Tracking (Squat, Bench, Row, OHP, Deadlift)
@@ -28,8 +24,6 @@ Free, open-source 5×5 strength training app for iOS and Android. Built with Rea
 - Progress Charts
 - Plate Calculator (with warmups)
 - Data Backup / Export to track progress across devices
-
----
 
 ## License
 
