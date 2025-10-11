@@ -1,4 +1,29 @@
 import PlateCalculator from "@/components/PlateCalculator";
+import {
+  createDefaultSession,
+  DELOAD_PERCENTAGE,
+  exerciseNames,
+  getTargetRepsForScheme,
+  MAX_FAILURES_BEFORE_DELOAD,
+  MINIMUM_INCREMENT,
+  PROGRESSION_INCREMENTS
+} from "@/src/constants/constants";
+import { useTheme } from "@/src/contexts/ThemeContext";
+import { useWorkout } from "@/src/contexts/WorkoutContext";
+import { createThemedStyles } from "@/src/styles/themedStyles";
+import {
+  CurrentSession,
+  ExerciseKey,
+  UserAccessoryExercise,
+  WorkoutType
+} from "@/src/types/types";
+import { handleWorkoutCompletion } from "@/src/utils/reviewPrompt";
+import {
+  formatTime,
+  formatWeight,
+  getRepButtonStyle,
+  getRepButtonTextStyle
+} from "@/src/utils/utils";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Notifications from "expo-notifications";
 import { router } from "expo-router";
@@ -15,31 +40,6 @@ import {
   View
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import {
-  createDefaultSession,
-  DELOAD_PERCENTAGE,
-  exerciseNames,
-  getTargetRepsForScheme,
-  MAX_FAILURES_BEFORE_DELOAD,
-  MINIMUM_INCREMENT,
-  PROGRESSION_INCREMENTS
-} from "@/src/constants/constants";
-import { handleWorkoutCompletion } from "@/src/utils/reviewPrompt";
-import { useTheme } from "@/src/contexts/ThemeContext";
-import { createThemedStyles } from "@/src/styles/themedStyles";
-import {
-  CurrentSession,
-  ExerciseKey,
-  UserAccessoryExercise,
-  WorkoutType
-} from "@/src/types/types";
-import {
-  formatTime,
-  formatWeight,
-  getRepButtonStyle,
-  getRepButtonTextStyle
-} from "@/src/utils/utils";
-import { useWorkout } from "@/src/contexts/WorkoutContext";
 
 interface AccessorySessionData {
   [key: string]: number[];
@@ -73,7 +73,7 @@ const Simple5x5App: React.FC = () => {
 
   const [currentWorkout, setCurrentWorkout] = useState<WorkoutType>("A");
   const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
-  const TEST_MODE = true;
+  const TEST_MODE = false;
   const [timeLeft, setTimeLeft] = useState<number>(TEST_MODE ? 2 : 180);
   const [endsAt, setEndsAt] = useState<number | null>(null);
   const [scheduledId, setScheduledId] = useState<string | null>(null);
