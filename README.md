@@ -1,50 +1,37 @@
-# Welcome to your Expo app 👋
+# Simple 5×5 Workout Tracker
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Free, open-source 5×5 strength training app for iOS and Android. Built with React Native and Expo.
 
-## Get started
+---
 
-1. Install dependencies
+## Installation
 
-   ```bash
-   npm install
-   ```
+**Android**
 
-2. Start the app
+- APK Download — _(GitHub Releases link)_
+- Play Store — _(URL)_
 
-   ```bash
-   npx expo start
-   ```
+**iOS**
 
-In the output, you'll find options to open the app in a
+- App Store — _(URL)_
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+---
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Features
 
-## Get a fresh project
+- Workout Tracking (Squat, Bench, Row, OHP, Deadlift)
+- Automatic Progression
+- Deload After 3 Failures
+- Custom Rep Schemes (5×5 / 3×5 / 1×5)
+- Rest Timer (3 & 5 min with notifications)
+- Accessory Exercises
+- Progress Charts
+- Plate Calculator (with warmups)
+- Data Backup / Export to track progress across devices
 
-When you're ready, run:
+---
 
-```bash
-npm run reset-project
-```
+## License
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Licensed under **GNU GPL v3** — see [LICENSE](LICENSE).  
+You may use, modify, and distribute this app, but derivatives must remain open-source under the same license.
