@@ -354,7 +354,11 @@ const SettingsApp: React.FC = () => {
               onPress={handleExport}
               style={styles.exportButton}
             >
-              <Ionicons name="download-outline" size={20} color="white" />
+              <Ionicons
+                name="cloud-upload-outline"
+                size={20}
+                color={theme.text}
+              />
               <Text style={styles.exportButtonText}>Export Data</Text>
             </TouchableOpacity>
 
@@ -362,11 +366,7 @@ const SettingsApp: React.FC = () => {
               onPress={handleImport}
               style={styles.importButton}
             >
-              <Ionicons
-                name="cloud-upload-outline"
-                size={20}
-                color={theme.text}
-              />
+              <Ionicons name="download-outline" size={20} color={theme.text} />
               <Text style={styles.importButtonText}>Import Data</Text>
             </TouchableOpacity>
           </View>
