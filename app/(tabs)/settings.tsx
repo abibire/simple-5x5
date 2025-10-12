@@ -354,11 +354,7 @@ const SettingsApp: React.FC = () => {
               onPress={handleExport}
               style={styles.exportButton}
             >
-              <Ionicons
-                name="cloud-upload-outline"
-                size={20}
-                color={theme.text}
-              />
+              <Ionicons name="cloud-upload-outline" size={20} color="white" />
               <Text style={styles.exportButtonText}>Export Data</Text>
             </TouchableOpacity>
 
