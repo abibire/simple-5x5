@@ -10,6 +10,11 @@ export type AccessoryCategory =
   | "shoulders";
 export type RepScheme = "5x5" | "3x5" | "1x5";
 
+export interface AvailablePlates {
+  lbs: number[];
+  kg: number[];
+}
+
 export interface Weights {
   squat: number;
   bench: number;

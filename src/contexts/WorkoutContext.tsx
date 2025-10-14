@@ -5,6 +5,7 @@ import {
   defaultWeights
 } from "@/src/constants/constants";
 import {
+  AvailablePlates,
   ExerciseDeloads,
   ExerciseFailures,
   RepSchemes,
@@ -21,6 +22,33 @@ import React, {
   useEffect,
   useState
 } from "react";
+
+const defaultAvailablePlates: AvailablePlates = {
+  lbs: [45, 35, 25, 10, 5, 2.5],
+  kg: [20, 15, 10, 5, 2.5, 1.25]
+};
+
+export const getMinimumIncrement = (
+  unitSystem: UnitSystem,
+  availablePlates: AvailablePlates
+): number => {
+  const plates = availablePlates[unitSystem];
+  if (plates.length === 0) return unitSystem === "lbs" ? 5 : 2.5;
+  const smallestPlate = Math.min(...plates);
+  return smallestPlate * 2;
+};
+
+export const roundToAvailablePlates = (
+  weight: number,
+  unitSystem: UnitSystem,
+  availablePlates: AvailablePlates
+): number => {
+  const barWeight = unitSystem === "lbs" ? 45 : 20;
+  if (weight <= barWeight) return barWeight;
+
+  const increment = getMinimumIncrement(unitSystem, availablePlates);
+  return Math.round(weight / increment) * increment;
+};
 
 interface WorkoutContextType {
   weights: Weights;
@@ -39,6 +67,8 @@ interface WorkoutContextType {
   setAccessoryColors: (colors: Record<string, string>) => void;
   repSchemes: RepSchemes;
   setRepSchemes: (schemes: RepSchemes) => void;
+  availablePlates: AvailablePlates;
+  setAvailablePlates: (plates: AvailablePlates) => void;
   isLoading: boolean;
   reloadData: () => Promise<void>;
 }
@@ -53,7 +83,8 @@ const STORAGE_KEYS = {
   UNIT_SYSTEM: "lifts_unit_system",
   ACCESSORIES: "lifts_accessories",
   ACCESSORY_COLORS: "lifts_accessory_colors",
-  REP_SCHEMES: "lifts_rep_schemes"
+  REP_SCHEMES: "lifts_rep_schemes",
+  AVAILABLE_PLATES: "lifts_available_plates"
 };
 
 export function WorkoutProvider({ children }: { children: ReactNode }) {
@@ -74,6 +105,9 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
   >({});
   const [repSchemes, setRepSchemesState] =
     useState<RepSchemes>(defaultRepSchemes);
+  const [availablePlates, setAvailablePlatesState] = useState<AvailablePlates>(
+    defaultAvailablePlates
+  );
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -90,7 +124,8 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         savedUnitSystem,
         savedAccessories,
         savedAccessoryColors,
-        savedRepSchemes
+        savedRepSchemes,
+        savedAvailablePlates
       ] = await Promise.all([
         AsyncStorage.getItem(STORAGE_KEYS.WEIGHTS),
         AsyncStorage.getItem(STORAGE_KEYS.WORKOUT_HISTORY),
@@ -99,7 +134,8 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         AsyncStorage.getItem(STORAGE_KEYS.UNIT_SYSTEM),
         AsyncStorage.getItem(STORAGE_KEYS.ACCESSORIES),
         AsyncStorage.getItem(STORAGE_KEYS.ACCESSORY_COLORS),
-        AsyncStorage.getItem(STORAGE_KEYS.REP_SCHEMES)
+        AsyncStorage.getItem(STORAGE_KEYS.REP_SCHEMES),
+        AsyncStorage.getItem(STORAGE_KEYS.AVAILABLE_PLATES)
       ]);
 
       if (savedUnitSystem) {
@@ -140,6 +176,11 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
       if (savedRepSchemes) {
         const parsedSchemes = JSON.parse(savedRepSchemes);
         setRepSchemesState(parsedSchemes);
+      }
+
+      if (savedAvailablePlates) {
+        const parsedPlates = JSON.parse(savedAvailablePlates);
+        setAvailablePlatesState(parsedPlates);
       }
     } catch (error) {
       console.error("Failed to load data from storage:", error);
@@ -239,6 +280,19 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const setAvailablePlates = async (newPlates: AvailablePlates) => {
+    try {
+      await AsyncStorage.setItem(
+        STORAGE_KEYS.AVAILABLE_PLATES,
+        JSON.stringify(newPlates)
+      );
+      setAvailablePlatesState(newPlates);
+    } catch (error) {
+      console.error("Failed to save available plates:", error);
+      setAvailablePlatesState(newPlates);
+    }
+  };
+
   const setWorkoutHistory = (
     updateFn: React.SetStateAction<WorkoutHistoryItem[]>
   ) => {
@@ -276,6 +330,8 @@ export function WorkoutProvider({ children }: { children: ReactNode }) {
         setAccessoryColors,
         repSchemes,
         setRepSchemes,
+        availablePlates,
+        setAvailablePlates,
         isLoading,
         reloadData: loadData
       }}

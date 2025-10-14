@@ -1,9 +1,10 @@
+import { useTheme } from "@/src/contexts/ThemeContext";
+import { useWorkout } from "@/src/contexts/WorkoutContext";
+import { UnitSystem } from "@/src/types/types";
+import { formatWeight } from "@/src/utils/utils";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
 import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { useTheme } from "@/src/contexts/ThemeContext";
-import { UnitSystem } from "@/src/types/types";
-import { formatWeight } from "@/src/utils/utils";
 import { createPlateStyles } from "./PlateCalculator.styles";
 
 interface PlateCalculatorProps {
@@ -28,15 +29,15 @@ const PlateCalculator: React.FC<PlateCalculatorProps> = ({
   exerciseName
 }) => {
   const { theme } = useTheme();
+  const { availablePlates } = useWorkout();
   const styles = createPlateStyles(theme);
 
   const barWeight = unitSystem === "lbs" ? 45 : 20;
 
   const getPlatesText = (totalWeight: number): string => {
-    const availablePlates =
-      unitSystem === "lbs"
-        ? [45, 35, 25, 10, 5, 2.5]
-        : [20, 15, 10, 5, 2.5, 1.25];
+    const availablePlatesForUnit = availablePlates[unitSystem].sort(
+      (a, b) => b - a
+    );
 
     const weightPerSide = (totalWeight - barWeight) / 2;
     if (weightPerSide <= 0) return "Bar only";
@@ -44,7 +45,7 @@ const PlateCalculator: React.FC<PlateCalculatorProps> = ({
     const platesList: Array<{ plate: number; count: number }> = [];
     let remaining = weightPerSide;
 
-    for (const plate of availablePlates) {
+    for (const plate of availablePlatesForUnit) {
       const count = Math.floor(remaining / plate);
       if (count > 0) {
         platesList.push({ plate, count });
@@ -58,10 +59,9 @@ const PlateCalculator: React.FC<PlateCalculatorProps> = ({
   };
 
   const calculatePlates = (totalWeight: number): number[] => {
-    const availablePlates =
-      unitSystem === "lbs"
-        ? [45, 35, 25, 10, 5, 2.5]
-        : [20, 15, 10, 5, 2.5, 1.25];
+    const availablePlatesForUnit = availablePlates[unitSystem].sort(
+      (a, b) => b - a
+    );
 
     const weightPerSide = (totalWeight - barWeight) / 2;
     if (weightPerSide <= 0) return [];
@@ -69,7 +69,7 @@ const PlateCalculator: React.FC<PlateCalculatorProps> = ({
     const plates: number[] = [];
     let remaining = weightPerSide;
 
-    for (const plate of availablePlates) {
+    for (const plate of availablePlatesForUnit) {
       const count = Math.floor(remaining / plate);
       for (let i = 0; i < count; i++) {
         plates.push(plate);

@@ -14,7 +14,8 @@ const BACKUP_KEYS = [
   "lifts_unit_system",
   "lifts_accessories",
   "lifts_accessory_colors",
-  "lifts_rep_schemes"
+  "lifts_rep_schemes",
+  "lifts_available_plates"
 ];
 
 const nowStamp = () => {

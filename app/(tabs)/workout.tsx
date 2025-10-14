@@ -9,7 +9,10 @@ import {
   PROGRESSION_INCREMENTS
 } from "@/src/constants/constants";
 import { useTheme } from "@/src/contexts/ThemeContext";
-import { useWorkout } from "@/src/contexts/WorkoutContext";
+import {
+  roundToAvailablePlates,
+  useWorkout
+} from "@/src/contexts/WorkoutContext";
 import { createThemedStyles } from "@/src/styles/themedStyles";
 import {
   CurrentSession,
@@ -65,7 +68,8 @@ const Simple5x5App: React.FC = () => {
     unitSystem,
     accessories,
     setAccessories,
-    repSchemes
+    repSchemes,
+    availablePlates
   } = useWorkout();
 
   const { theme, isDark } = useTheme();
@@ -105,6 +109,10 @@ const Simple5x5App: React.FC = () => {
   const activeAccessories = accessories.filter(
     (acc) => acc.enabled && acc.workouts.includes(currentWorkout)
   );
+
+  const getDisplayWeight = (weight: number): number => {
+    return roundToAvailablePlates(weight, unitSystem, availablePlates);
+  };
 
   useEffect(() => {
     setupNotifications();
@@ -377,10 +385,8 @@ const Simple5x5App: React.FC = () => {
         const oldWeight = weights[exercise];
         const deloadAmount = oldWeight * DELOAD_PERCENTAGE;
         const rawNewWeight = oldWeight - deloadAmount;
-        const newWeight = Math.max(
-          PROGRESSION_INCREMENTS[unitSystem][exercise],
-          roundWeight(rawNewWeight)
-        );
+        const minWeight = PROGRESSION_INCREMENTS[unitSystem][exercise];
+        const newWeight = Math.max(minWeight, getDisplayWeight(rawNewWeight));
         exercisesToDeload.push({
           exercise,
           oldWeight,
@@ -514,9 +520,10 @@ const Simple5x5App: React.FC = () => {
       const completed = isExerciseCompleted(exercise);
       if (completed) {
         newFailures[exercise] = 0;
-        newWeights[exercise] = roundWeight(
-          newWeights[exercise] + PROGRESSION_INCREMENTS[unitSystem][exercise]
-        );
+        const currentWeight = weights[exercise];
+        const increment = PROGRESSION_INCREMENTS[unitSystem][exercise];
+        const newWeight = currentWeight + increment;
+        newWeights[exercise] = getDisplayWeight(newWeight);
       } else {
         newFailures[exercise] += 1;
       }
@@ -525,7 +532,7 @@ const Simple5x5App: React.FC = () => {
     const accessoriesData = activeAccessories.map((acc) => ({
       id: acc.id,
       name: acc.name,
-      weight: acc.weight ?? 0,
+      weight: getDisplayWeight(acc.weight ?? 0),
       sets: accessorySession[acc.id]?.map((reps) => Math.max(0, reps)) || [],
       targetReps: acc.reps
     }));
@@ -535,7 +542,7 @@ const Simple5x5App: React.FC = () => {
       type: currentWorkout,
       exercises: exercises.map((ex: ExerciseKey) => ({
         name: exerciseNames[ex],
-        weight: weights[ex],
+        weight: getDisplayWeight(weights[ex]),
         sets: currentSession[ex].sets.map((reps) => Math.max(0, reps)),
         completed: isExerciseCompleted(ex),
         repScheme: repSchemes[ex]
@@ -613,7 +620,7 @@ const Simple5x5App: React.FC = () => {
 
   const startEditingWeight = (exercise: ExerciseKey): void => {
     setEditingWeight(exercise);
-    setWeightInputValue(weights[exercise].toString());
+    setWeightInputValue(getDisplayWeight(weights[exercise]).toString());
   };
 
   const confirmWeightEdit = (): void => {
@@ -621,7 +628,7 @@ const Simple5x5App: React.FC = () => {
       const newWeight = parseFloat(weightInputValue);
       if (!isNaN(newWeight) && newWeight > 0) {
         const newWeights = { ...weights };
-        newWeights[editingWeight] = roundWeight(newWeight);
+        newWeights[editingWeight] = getDisplayWeight(newWeight);
         setWeights(newWeights);
       }
       setEditingWeight(null);
@@ -644,7 +651,7 @@ const Simple5x5App: React.FC = () => {
     });
     setAccessoryWeightInput({
       ...accessoryWeightInput,
-      [accessoryId]: currentWeight.toString()
+      [accessoryId]: getDisplayWeight(currentWeight).toString()
     });
   };
 
@@ -656,7 +663,7 @@ const Simple5x5App: React.FC = () => {
         const newAccessories = [...accessories];
         newAccessories[index] = {
           ...newAccessories[index],
-          weight: newWeight
+          weight: getDisplayWeight(newWeight)
         };
         setAccessories(newAccessories);
       }
@@ -870,7 +877,10 @@ const Simple5x5App: React.FC = () => {
                       activeOpacity={0.6}
                     >
                       <Text style={styles.exerciseWeightClickable}>
-                        {formatWeight(weights[exercise], unitSystem)}
+                        {formatWeight(
+                          getDisplayWeight(weights[exercise]),
+                          unitSystem
+                        )}
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -918,6 +928,7 @@ const Simple5x5App: React.FC = () => {
             </View>
             {activeAccessories.map((accessory: UserAccessoryExercise) => {
               const safeWeight = accessory.weight ?? 0;
+              const displayWeight = getDisplayWeight(safeWeight);
 
               return (
                 <View key={accessory.id} style={styles.exerciseContainer}>
@@ -984,7 +995,7 @@ const Simple5x5App: React.FC = () => {
                           activeOpacity={0.6}
                         >
                           <Text style={styles.exerciseWeightClickable}>
-                            {formatWeight(safeWeight, unitSystem)}
+                            {formatWeight(displayWeight, unitSystem)}
                           </Text>
                         </TouchableOpacity>
                       </View>
@@ -1046,7 +1057,9 @@ const Simple5x5App: React.FC = () => {
       <PlateCalculator
         visible={showWeightModal}
         onClose={() => setShowWeightModal(false)}
-        weight={selectedExercise ? weights[selectedExercise] : 0}
+        weight={
+          selectedExercise ? getDisplayWeight(weights[selectedExercise]) : 0
+        }
         unitSystem={unitSystem}
         exerciseName={selectedExercise ? exerciseNames[selectedExercise] : ""}
       />

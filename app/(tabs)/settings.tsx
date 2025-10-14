@@ -35,6 +35,8 @@ const SettingsApp: React.FC = () => {
     setAccessories,
     repSchemes,
     setRepSchemes,
+    availablePlates,
+    setAvailablePlates,
     reloadData
   } = useWorkout();
   const { theme, themeMode, setThemeMode, isDark } = useTheme();
@@ -85,6 +87,19 @@ const SettingsApp: React.FC = () => {
     setRepSchemes(newSchemes);
   };
 
+  const togglePlate = (unit: UnitSystem, plate: number) => {
+    const newPlates = { ...availablePlates };
+    const currentPlates = newPlates[unit];
+
+    if (currentPlates.includes(plate)) {
+      newPlates[unit] = currentPlates.filter((p) => p !== plate);
+    } else {
+      newPlates[unit] = [...currentPlates, plate].sort((a, b) => b - a);
+    }
+
+    setAvailablePlates(newPlates);
+  };
+
   const handleExport = () => {
     Alert.alert(
       "Export Data",
@@ -112,6 +127,10 @@ const SettingsApp: React.FC = () => {
       ]
     );
   };
+
+  const allPlatesLbs = [45, 35, 25, 10, 5, 2.5];
+  const allPlatesKg = [20, 15, 10, 5, 2.5, 1.25];
+  const currentPlates = unitSystem === "lbs" ? allPlatesLbs : allPlatesKg;
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
@@ -201,6 +220,30 @@ const SettingsApp: React.FC = () => {
 
         <View style={styles.weightsContainer}>
           <View style={styles.weightsHeader}>
+            <Text style={styles.weightsTitle}>Accessory Exercises</Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => router.push("/accessories")}
+            style={{
+              padding: 16,
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center"
+            }}
+          >
+            <Text style={{ fontSize: 16, color: theme.text }}>
+              Manage Accessories
+            </Text>
+            <Ionicons
+              name="chevron-forward"
+              size={24}
+              color={theme.textSecondary}
+            />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.weightsContainer}>
+          <View style={styles.weightsHeader}>
             <Text style={styles.weightsTitle}>Unit System</Text>
           </View>
           <View style={{ padding: 16 }}>
@@ -267,6 +310,70 @@ const SettingsApp: React.FC = () => {
 
         <View style={styles.weightsContainer}>
           <View style={styles.weightsHeader}>
+            <Text style={styles.weightsTitle}>Available Plates</Text>
+          </View>
+          <View style={{ padding: 16, gap: 16 }}>
+            <View>
+              <Text
+                style={{
+                  fontSize: 14,
+                  fontWeight: "600",
+                  color: theme.text,
+                  marginBottom: 8
+                }}
+              >
+                {unitSystem === "lbs" ? "Pounds (lbs)" : "Kilograms (kg)"}
+              </Text>
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+                {currentPlates.map((plate) => (
+                  <TouchableOpacity
+                    key={plate}
+                    onPress={() => togglePlate(unitSystem, plate)}
+                    style={{
+                      backgroundColor: availablePlates[unitSystem].includes(
+                        plate
+                      )
+                        ? theme.primary
+                        : theme.surfaceSecondary,
+                      paddingHorizontal: 16,
+                      paddingVertical: 10,
+                      borderRadius: 8,
+                      borderWidth: 1,
+                      borderColor: availablePlates[unitSystem].includes(plate)
+                        ? theme.primary
+                        : theme.border
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        fontWeight: "600",
+                        color: availablePlates[unitSystem].includes(plate)
+                          ? "white"
+                          : theme.text
+                      }}
+                    >
+                      {plate} {unitSystem}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+            <Text
+              style={{
+                fontSize: 12,
+                color: theme.textSecondary,
+                marginTop: 4,
+                textAlign: "center"
+              }}
+            >
+              Toggle plates based on what's available in your gym
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.weightsContainer}>
+          <View style={styles.weightsHeader}>
             <Text style={styles.weightsTitle}>Rep Schemes</Text>
           </View>
           <View style={{ padding: 16, gap: 16 }}>
@@ -319,30 +426,6 @@ const SettingsApp: React.FC = () => {
               )
             )}
           </View>
-        </View>
-
-        <View style={styles.weightsContainer}>
-          <View style={styles.weightsHeader}>
-            <Text style={styles.weightsTitle}>Accessory Exercises</Text>
-          </View>
-          <TouchableOpacity
-            onPress={() => router.push("/accessories")}
-            style={{
-              padding: 16,
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center"
-            }}
-          >
-            <Text style={{ fontSize: 16, color: theme.text }}>
-              Manage Accessories
-            </Text>
-            <Ionicons
-              name="chevron-forward"
-              size={24}
-              color={theme.textSecondary}
-            />
-          </TouchableOpacity>
         </View>
 
         <View style={styles.dataManagementSection}>
