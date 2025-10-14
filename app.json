@@ -6,33 +6,30 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "automatic",
-
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#0f63f9"
     },
-
     "assetBundlePatterns": ["**/*"],
-
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.simple5x5.app"
+      "bundleIdentifier": "com.bibire.simple5x5",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
-
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#0f63f9"
       },
-      "package": "com.simple5x5.app"
+      "package": "com.bibire.simple5x5"
     },
-
     "androidStatusBar": {
       "barStyle": "light-content",
       "backgroundColor": "#0f63f9"
     },
-
     "plugins": [
       "expo-router",
       [
@@ -44,7 +41,12 @@
         }
       ]
     ],
-
-    "scheme": "simple5x5"
+    "scheme": "simple5x5",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "1b20edd1-14f0-472d-a71d-505ce99ef2d5"
+      }
+    }
   }
 }
