@@ -113,7 +113,41 @@ const Simple5x5App: React.FC = () => {
 
   useEffect(() => {
     setCurrentSession(createDefaultSession(repSchemes));
-  }, [currentWorkout, repSchemes]);
+  }, [currentWorkout]);
+
+  useEffect(() => {
+    setCurrentSession((prevSession) => {
+      const newSession = { ...prevSession };
+
+      getCurrentExercises().forEach((exercise) => {
+        const currentScheme = repSchemes[exercise];
+        const currentSets = prevSession[exercise].sets;
+        const newSetCount =
+          currentScheme === "5x5" ? 5 : currentScheme === "3x5" ? 3 : 1;
+
+        if (currentSets.length === newSetCount) {
+          return;
+        }
+
+        if (currentSets.length > newSetCount) {
+          newSession[exercise] = {
+            ...newSession[exercise],
+            sets: currentSets.slice(0, newSetCount)
+          };
+        } else {
+          const additionalSets = Array(newSetCount - currentSets.length).fill(
+            -1
+          );
+          newSession[exercise] = {
+            ...newSession[exercise],
+            sets: [...currentSets, ...additionalSets]
+          };
+        }
+      });
+
+      return newSession;
+    });
+  }, [repSchemes]);
 
   useEffect(() => {
     setAccessorySession((prevSession) => {
