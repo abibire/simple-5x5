@@ -1,3 +1,11 @@
+import {
+  ACCESSORY_EXERCISES,
+  CATEGORY_NAMES
+} from "@/src/constants/accessoryExercises";
+import { useTheme } from "@/src/contexts/ThemeContext";
+import { useWorkout } from "@/src/contexts/WorkoutContext";
+import { createThemedStyles } from "@/src/styles/themedStyles";
+import { AccessoryCategory, UserAccessoryExercise } from "@/src/types/types";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
@@ -10,11 +18,6 @@ import {
   View
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { ACCESSORY_EXERCISES, CATEGORY_NAMES } from "@/src/constants/accessoryExercises";
-import { useTheme } from "@/src/contexts/ThemeContext";
-import { createThemedStyles } from "@/src/styles/themedStyles";
-import { AccessoryCategory, UserAccessoryExercise } from "@/src/types/types";
-import { useWorkout } from "@/src/contexts/WorkoutContext";
 
 const AccessoriesApp: React.FC = () => {
   const { theme, isDark } = useTheme();
@@ -222,7 +225,14 @@ const AccessoriesApp: React.FC = () => {
                                   config.sets || exercise.defaultSets
                                 ).toString()}
                                 onChangeText={(text) => {
-                                  if (text === "") return;
+                                  if (text === "") {
+                                    updateExerciseConfig(
+                                      exercise.id,
+                                      "sets",
+                                      1
+                                    );
+                                    return;
+                                  }
                                   const num = parseInt(text);
                                   if (!isNaN(num) && num > 0) {
                                     updateExerciseConfig(
@@ -262,7 +272,14 @@ const AccessoriesApp: React.FC = () => {
                                   config.reps || exercise.defaultReps
                                 ).toString()}
                                 onChangeText={(text) => {
-                                  if (text === "") return;
+                                  if (text === "") {
+                                    updateExerciseConfig(
+                                      exercise.id,
+                                      "reps",
+                                      1
+                                    );
+                                    return;
+                                  }
                                   const num = parseInt(text);
                                   if (!isNaN(num) && num > 0) {
                                     updateExerciseConfig(

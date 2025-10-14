@@ -100,6 +100,7 @@ const Simple5x5App: React.FC = () => {
 
   const appState = useRef(AppState.currentState);
   const isNative = Platform.OS !== "web";
+  const isManualSwitch = useRef(false);
 
   const activeAccessories = accessories.filter(
     (acc) => acc.enabled && acc.workouts.includes(currentWorkout)
@@ -107,12 +108,17 @@ const Simple5x5App: React.FC = () => {
 
   useEffect(() => {
     setupNotifications();
-    setHasShownDeloadAlert(false);
-    checkForDeloads();
+    if (!isManualSwitch.current) {
+      setHasShownDeloadAlert(false);
+      checkForDeloads();
+    }
   }, [currentWorkout]);
 
   useEffect(() => {
-    setCurrentSession(createDefaultSession(repSchemes));
+    if (!isManualSwitch.current) {
+      setCurrentSession(createDefaultSession(repSchemes));
+    }
+    isManualSwitch.current = false;
   }, [currentWorkout]);
 
   useEffect(() => {
@@ -573,6 +579,38 @@ const Simple5x5App: React.FC = () => {
     return exercises;
   };
 
+  const switchWorkout = () => {
+    const newWorkout: WorkoutType = currentWorkout === "A" ? "B" : "A";
+
+    isManualSwitch.current = true;
+
+    const squatProgress = currentSession.squat;
+
+    const newSession = createDefaultSession(repSchemes);
+    newSession.squat = squatProgress;
+
+    setCurrentSession(newSession);
+
+    setAccessorySession((prevSession) => {
+      const newSession: AccessorySessionData = {};
+      const newActiveAccessories = accessories.filter(
+        (acc) => acc.enabled && acc.workouts.includes(newWorkout)
+      );
+
+      newActiveAccessories.forEach((acc) => {
+        if (prevSession[acc.id] && acc.workouts.includes(currentWorkout)) {
+          newSession[acc.id] = prevSession[acc.id];
+        } else {
+          newSession[acc.id] = Array(acc.sets).fill(-1);
+        }
+      });
+
+      return newSession;
+    });
+
+    setCurrentWorkout(newWorkout);
+  };
+
   const startEditingWeight = (exercise: ExerciseKey): void => {
     setEditingWeight(exercise);
     setWeightInputValue(weights[exercise].toString());
@@ -647,8 +685,33 @@ const Simple5x5App: React.FC = () => {
       />
       <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Simple 5×5</Text>
-          <Text style={styles.headerSubtitle}>Workout {currentWorkout}</Text>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center"
+            }}
+          >
+            <View>
+              <Text style={styles.headerTitle}>Simple 5×5</Text>
+              <Text style={styles.headerSubtitle}>
+                Workout {currentWorkout}
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={switchWorkout}
+              style={{
+                backgroundColor: "rgba(255, 255, 255, 0.2)",
+                paddingHorizontal: 16,
+                paddingVertical: 8,
+                borderRadius: 8
+              }}
+            >
+              <Text style={{ color: "white", fontSize: 14, fontWeight: "600" }}>
+                Switch to {currentWorkout === "A" ? "B" : "A"}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
         <View style={styles.timerContainer}>
           <View style={styles.timerRow}>
