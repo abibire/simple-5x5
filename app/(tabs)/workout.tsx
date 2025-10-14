@@ -228,6 +228,24 @@ const Simple5x5App: React.FC = () => {
         setTimeLeft(diff);
         if (diff === 0) {
           setIsTimerRunning(false);
+          if (isNative) {
+            Notifications.scheduleNotificationAsync({
+              content: {
+                title: "Rest Timer Complete!",
+                body: "Time to get back to your workout",
+                categoryIdentifier: "timer-complete",
+                sound: Platform.OS === "ios" ? "set_bell.wav" : true,
+                data: { type: "timer-complete" },
+                autoDismiss: true,
+                ...(Platform.OS === "android"
+                  ? {
+                      priority: Notifications.AndroidNotificationPriority.MAX
+                    }
+                  : {})
+              },
+              trigger: null
+            });
+          }
           clearInterval(interval!);
         }
       }, 500);
@@ -235,7 +253,7 @@ const Simple5x5App: React.FC = () => {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isTimerRunning, endsAt]);
+  }, [isTimerRunning, endsAt, isNative]);
 
   const setupNotifications = async () => {
     if (!isNative) return;
@@ -263,12 +281,13 @@ const Simple5x5App: React.FC = () => {
     if (Platform.OS === "android") {
       await Notifications.setNotificationChannelAsync("rest-timer", {
         name: "Rest Timer",
-        importance: Notifications.AndroidImportance.HIGH,
+        importance: Notifications.AndroidImportance.MAX,
         vibrationPattern: [0, 250, 250, 250],
         lockscreenVisibility:
           Notifications.AndroidNotificationVisibility.PUBLIC,
         bypassDnd: false,
-        sound: "set_bell.wav"
+        sound: "set_bell.wav",
+        enableVibrate: true
       });
     }
   };
@@ -286,17 +305,24 @@ const Simple5x5App: React.FC = () => {
 
   const scheduleRestNotification = async (seconds: number) => {
     if (!isNative) return;
+
+    await Notifications.dismissAllNotificationsAsync();
+
     if (scheduledId) {
       try {
         await Notifications.cancelScheduledNotificationAsync(scheduledId);
-      } catch {}
+      } catch (e) {
+        console.log("Failed to cancel notification:", e);
+      }
     }
+
     const trigger: Notifications.NotificationTriggerInput = {
       type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
       seconds,
       repeats: false,
       ...(Platform.OS === "android" ? { channelId: "rest-timer" } : {})
     };
+
     const id = await Notifications.scheduleNotificationAsync({
       content: {
         title: "Rest Timer Complete!",
@@ -304,7 +330,12 @@ const Simple5x5App: React.FC = () => {
         categoryIdentifier: "timer-complete",
         sound: Platform.OS === "ios" ? "set_bell.wav" : true,
         data: { type: "timer-complete" },
-        autoDismiss: true
+        autoDismiss: true,
+        ...(Platform.OS === "android"
+          ? {
+              priority: Notifications.AndroidNotificationPriority.MAX
+            }
+          : {})
       },
       trigger
     });
@@ -319,7 +350,11 @@ const Simple5x5App: React.FC = () => {
     await scheduleRestNotification(secs);
   };
 
-  const completeNextSetAndRestart = () => {
+  const completeNextSetAndRestart = async () => {
+    if (isNative) {
+      await Notifications.dismissAllNotificationsAsync();
+    }
+
     setCurrentSession((prevSession) => {
       const exercises = getCurrentExercises();
       let foundEmptySet = false;
@@ -359,8 +394,8 @@ const Simple5x5App: React.FC = () => {
       if (foundEmptySet) {
         setIsTimerRunning(false);
         setEndsAt(null);
-        setTimeout(() => {
-          startTimer(TEST_MODE ? 2 : 180);
+        setTimeout(async () => {
+          await startTimer(TEST_MODE ? 2 : 180);
         }, 100);
       }
       return updatedSession;
@@ -437,7 +472,9 @@ const Simple5x5App: React.FC = () => {
   };
 
   const updateSet = (exercise: ExerciseKey, setIndex: number): void => {
-    Notifications.dismissAllNotificationsAsync();
+    if (isNative) {
+      Notifications.dismissAllNotificationsAsync();
+    }
     setCurrentSession((prev) => {
       const currentReps = prev[exercise].sets[setIndex];
       let nextReps: number;
@@ -467,7 +504,9 @@ const Simple5x5App: React.FC = () => {
     targetReps: number,
     restTime: number
   ): void => {
-    Notifications.dismissAllNotificationsAsync();
+    if (isNative) {
+      Notifications.dismissAllNotificationsAsync();
+    }
     setAccessorySession((prev) => {
       const newSession = { ...prev };
       if (!newSession[accessoryId]) {

@@ -24,11 +24,24 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#0f63f9"
       },
-      "package": "com.bibire.simple5x5"
+      "package": "com.bibire.simple5x5",
+      "permissions": [
+        "VIBRATE",
+        "POST_NOTIFICATIONS",
+        "USE_EXACT_ALARM",
+        "SCHEDULE_EXACT_ALARM",
+        "WAKE_LOCK"
+      ]
     },
     "androidStatusBar": {
       "barStyle": "light-content",
       "backgroundColor": "#0f63f9"
+    },
+    "notification": {
+      "icon": "./assets/images/notification-icon.png",
+      "color": "#0f63f9",
+      "androidMode": "default",
+      "androidCollapsedTitle": "Rest Timer"
     },
     "plugins": [
       "expo-router",
