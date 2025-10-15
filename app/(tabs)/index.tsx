@@ -1,4 +1,20 @@
 import TutorialModal from "@/components/TutorialModal";
+import {
+  defaultDeloads,
+  defaultFailures,
+  defaultWeights,
+  exerciseNames
+} from "@/src/constants/constants";
+import { useTheme } from "@/src/contexts/ThemeContext";
+import { useWorkout } from "@/src/contexts/WorkoutContext";
+import { createThemedStyles } from "@/src/styles/themedStyles";
+import {
+  AccessoryWorkoutExercise,
+  ExerciseKey,
+  WorkoutExercise,
+  WorkoutHistoryItem
+} from "@/src/types/types";
+import { convertWeight, formatWeight } from "@/src/utils/utils";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Octicons from "@expo/vector-icons/Octicons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -13,22 +29,6 @@ import {
   View
 } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import {
-  defaultDeloads,
-  defaultFailures,
-  defaultWeights,
-  exerciseNames
-} from "@/src/constants/constants";
-import { useTheme } from "@/src/contexts/ThemeContext";
-import { createThemedStyles } from "@/src/styles/themedStyles";
-import {
-  AccessoryWorkoutExercise,
-  ExerciseKey,
-  WorkoutExercise,
-  WorkoutHistoryItem
-} from "@/src/types/types";
-import { convertWeight, formatWeight } from "@/src/utils/utils";
-import { useWorkout } from "@/src/contexts/WorkoutContext";
 
 const TUTORIAL_KEY = "lifts_tutorial_seen";
 
@@ -95,7 +95,7 @@ const HomeApp: React.FC = () => {
       <ScrollView style={styles.scrollView}>
         <View style={styles.weightsContainer}>
           <View style={styles.weightsHeader}>
-            <Text style={styles.weightsTitle}>📈 Current Weights</Text>
+            <Text style={styles.weightsTitle}>Current Weights</Text>
             <TouchableOpacity onPress={confirmDeleteHistory}>
               <MaterialCommunityIcons
                 name="delete"
