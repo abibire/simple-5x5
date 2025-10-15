@@ -1,0 +1,14 @@
+Simple 5×5 is a strength training app for the StrongLifts 5×5 workout program.
+
+Features:
+- Workout Tracking (Squat, Bench, Row, OHP, Deadlift)
+- Automatic Progression
+- Deload After 3 Failures
+- Custom Rep Schemes (5×5, 3×5, 1×5)
+- Rest Timer (3 & 5 min with notifications)
+- Accessory Exercises
+- Progress Charts
+- Plate Calculator with warmups
+- Data Backup & Export
+
+Completely open-source and privacy-respecting. No ads, no tracking.
