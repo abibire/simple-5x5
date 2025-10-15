@@ -225,22 +225,6 @@ const Simple5x5App: React.FC = () => {
         setTimeLeft(diff);
         if (diff === 0) {
           setIsTimerRunning(false);
-          Notifications.scheduleNotificationAsync({
-            content: {
-              title: "Rest Timer Complete!",
-              body: "Time to get back to your workout",
-              categoryIdentifier: "timer-complete",
-              sound: Platform.OS === "ios" ? "set_bell.wav" : true,
-              data: { type: "timer-complete" },
-              autoDismiss: true,
-              ...(Platform.OS === "android"
-                ? {
-                    priority: Notifications.AndroidNotificationPriority.MAX
-                  }
-                : {})
-            },
-            trigger: null
-          });
           clearInterval(interval!);
         }
       }, 500);

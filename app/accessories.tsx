@@ -68,10 +68,10 @@ const AccessoriesApp: React.FC = () => {
     }
   };
 
-  const updateExerciseConfig = (
+  const updateExerciseConfig = <K extends keyof UserAccessoryExercise>(
     exerciseId: string,
-    field: keyof UserAccessoryExercise,
-    value: any
+    field: K,
+    value: UserAccessoryExercise[K]
   ) => {
     const index = accessories.findIndex((acc) => acc.id === exerciseId);
     if (index < 0) return;

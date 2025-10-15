@@ -15,6 +15,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.bibire.simple5x5",
+      "buildNumber": "2",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -25,6 +26,7 @@
         "backgroundColor": "#0f63f9"
       },
       "package": "com.bibire.simple5x5",
+      "versionCode": 2,
       "permissions": [
         "VIBRATE",
         "POST_NOTIFICATIONS",
