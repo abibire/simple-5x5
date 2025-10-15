@@ -103,7 +103,6 @@ const Simple5x5App: React.FC = () => {
   );
 
   const appState = useRef(AppState.currentState);
-  const isNative = Platform.OS !== "web";
   const isManualSwitch = useRef(false);
 
   const activeAccessories = accessories.filter(
@@ -188,22 +187,20 @@ const Simple5x5App: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!isNative) return;
     const last = Notifications.getLastNotificationResponse();
     if (last?.actionIdentifier === "complete-set") {
       Notifications.dismissAllNotificationsAsync();
       router.push("/(tabs)/workout");
       completeNextSetAndRestart();
     }
-  }, [isNative]);
+  }, []);
 
   useEffect(() => {
-    if (!isNative) return;
     const sub = Notifications.addNotificationResponseReceivedListener(
       handleNotificationResponse
     );
     return () => sub.remove();
-  }, [isNative]);
+  }, []);
 
   useEffect(() => {
     const sub = AppState.addEventListener("change", (next) => {
@@ -228,24 +225,22 @@ const Simple5x5App: React.FC = () => {
         setTimeLeft(diff);
         if (diff === 0) {
           setIsTimerRunning(false);
-          if (isNative) {
-            Notifications.scheduleNotificationAsync({
-              content: {
-                title: "Rest Timer Complete!",
-                body: "Time to get back to your workout",
-                categoryIdentifier: "timer-complete",
-                sound: Platform.OS === "ios" ? "set_bell.wav" : true,
-                data: { type: "timer-complete" },
-                autoDismiss: true,
-                ...(Platform.OS === "android"
-                  ? {
-                      priority: Notifications.AndroidNotificationPriority.MAX
-                    }
-                  : {})
-              },
-              trigger: null
-            });
-          }
+          Notifications.scheduleNotificationAsync({
+            content: {
+              title: "Rest Timer Complete!",
+              body: "Time to get back to your workout",
+              categoryIdentifier: "timer-complete",
+              sound: Platform.OS === "ios" ? "set_bell.wav" : true,
+              data: { type: "timer-complete" },
+              autoDismiss: true,
+              ...(Platform.OS === "android"
+                ? {
+                    priority: Notifications.AndroidNotificationPriority.MAX
+                  }
+                : {})
+            },
+            trigger: null
+          });
           clearInterval(interval!);
         }
       }, 500);
@@ -253,10 +248,9 @@ const Simple5x5App: React.FC = () => {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isTimerRunning, endsAt, isNative]);
+  }, [isTimerRunning, endsAt]);
 
   const setupNotifications = async () => {
-    if (!isNative) return;
     await Notifications.requestPermissionsAsync();
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
@@ -304,8 +298,6 @@ const Simple5x5App: React.FC = () => {
   };
 
   const scheduleRestNotification = async (seconds: number) => {
-    if (!isNative) return;
-
     await Notifications.dismissAllNotificationsAsync();
 
     if (scheduledId) {
@@ -351,9 +343,7 @@ const Simple5x5App: React.FC = () => {
   };
 
   const completeNextSetAndRestart = async () => {
-    if (isNative) {
-      await Notifications.dismissAllNotificationsAsync();
-    }
+    await Notifications.dismissAllNotificationsAsync();
 
     setCurrentSession((prevSession) => {
       const exercises = getCurrentExercises();
@@ -472,9 +462,7 @@ const Simple5x5App: React.FC = () => {
   };
 
   const updateSet = (exercise: ExerciseKey, setIndex: number): void => {
-    if (isNative) {
-      Notifications.dismissAllNotificationsAsync();
-    }
+    Notifications.dismissAllNotificationsAsync();
     setCurrentSession((prev) => {
       const currentReps = prev[exercise].sets[setIndex];
       let nextReps: number;
@@ -504,9 +492,7 @@ const Simple5x5App: React.FC = () => {
     targetReps: number,
     restTime: number
   ): void => {
-    if (isNative) {
-      Notifications.dismissAllNotificationsAsync();
-    }
+    Notifications.dismissAllNotificationsAsync();
     setAccessorySession((prev) => {
       const newSession = { ...prev };
       if (!newSession[accessoryId]) {
