@@ -11,7 +11,7 @@ Open-source 5×5 strength training app for iOS and Android. Built with React Nat
 
 **iOS**
 
-- App Store — _(URL)_
+- App Store — https://apps.apple.com/us/app/simple-5x5/id6753905717
 
 ## Features
 
