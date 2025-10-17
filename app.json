@@ -2,7 +2,7 @@
   "expo": {
     "name": "Simple 5×5",
     "slug": "simple-5x5",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "automatic",
@@ -11,9 +11,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#0f63f9"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.bibire.simple5x5",
@@ -55,9 +53,7 @@
         {
           "icon": "./assets/images/notification-icon.png",
           "color": "#0f63f9",
-          "sounds": [
-            "./assets/set_bell.wav"
-          ]
+          "sounds": ["./assets/set_bell.wav"]
         }
       ]
     ],
