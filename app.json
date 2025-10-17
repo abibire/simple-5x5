@@ -11,7 +11,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#0f63f9"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.bibire.simple5x5",
@@ -27,7 +29,14 @@
       },
       "package": "com.andrewbibire.simple5x5",
       "versionCode": 2,
-      "permissions": ["VIBRATE", "POST_NOTIFICATIONS", "SCHEDULE_EXACT_ALARM"]
+      "permissions": [
+        "VIBRATE",
+        "POST_NOTIFICATIONS",
+        "SCHEDULE_EXACT_ALARM",
+        "VIBRATE",
+        "POST_NOTIFICATIONS",
+        "SCHEDULE_EXACT_ALARM"
+      ]
     },
     "androidStatusBar": {
       "barStyle": "light-content",
@@ -46,7 +55,9 @@
         {
           "icon": "./assets/images/notification-icon.png",
           "color": "#0f63f9",
-          "sounds": ["./assets/set_bell.wav"]
+          "sounds": [
+            "./assets/set_bell.wav"
+          ]
         }
       ]
     ],
@@ -56,6 +67,12 @@
       "eas": {
         "projectId": "1b20edd1-14f0-472d-a71d-505ce99ef2d5"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/1b20edd1-14f0-472d-a71d-505ce99ef2d5"
     }
   }
 }
