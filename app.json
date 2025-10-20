@@ -25,7 +25,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#0f63f9"
       },
-      "package": "com.andrewbibire.simple5x5",
+      "package": "com.bibire.simple5x5",
       "versionCode": 2,
       "permissions": [
         "VIBRATE",
