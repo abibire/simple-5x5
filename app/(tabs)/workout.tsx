@@ -82,6 +82,9 @@ const Simple5x5App: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState<number>(TEST_MODE ? 2 : 180);
   const [endsAt, setEndsAt] = useState<number | null>(null);
   const [scheduledId, setScheduledId] = useState<string | null>(null);
+  const [selectedRestTime, setSelectedRestTime] = useState<number>(
+    TEST_MODE ? 2 : 180
+  );
   const [currentSession, setCurrentSession] = useState<CurrentSession>(
     createDefaultSession(repSchemes)
   );
@@ -461,8 +464,9 @@ const Simple5x5App: React.FC = () => {
       else if (currentReps === 0) nextReps = -1;
       else nextReps = currentReps - 1;
       if (nextReps > 0) {
+        // Use selectedRestTime for successful sets (5 reps), always use 5:00 for failed sets
         const restTime =
-          nextReps === 5 ? (TEST_MODE ? 2 : 180) : TEST_MODE ? 3 : 300;
+          nextReps === 5 ? selectedRestTime : TEST_MODE ? 3 : 300;
         startTimer(restTime);
       }
       return {
@@ -753,22 +757,64 @@ const Simple5x5App: React.FC = () => {
             </View>
             <View style={styles.presetButtons}>
               <TouchableOpacity
-                onPress={() => startTimer(TEST_MODE ? 1 : 90)}
-                style={styles.presetButton}
+                onPress={() => setSelectedRestTime(TEST_MODE ? 1 : 90)}
+                style={[
+                  styles.presetButton,
+                  selectedRestTime === (TEST_MODE ? 1 : 90) && {
+                    backgroundColor: theme.primary
+                  }
+                ]}
               >
-                <Text style={styles.presetButtonText}>1:30</Text>
+                <Text
+                  style={[
+                    styles.presetButtonText,
+                    selectedRestTime === (TEST_MODE ? 1 : 90) && {
+                      color: "white"
+                    }
+                  ]}
+                >
+                  1:30
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => startTimer(TEST_MODE ? 2 : 180)}
-                style={styles.presetButton}
+                onPress={() => setSelectedRestTime(TEST_MODE ? 2 : 180)}
+                style={[
+                  styles.presetButton,
+                  selectedRestTime === (TEST_MODE ? 2 : 180) && {
+                    backgroundColor: theme.primary
+                  }
+                ]}
               >
-                <Text style={styles.presetButtonText}>3:00</Text>
+                <Text
+                  style={[
+                    styles.presetButtonText,
+                    selectedRestTime === (TEST_MODE ? 2 : 180) && {
+                      color: "white"
+                    }
+                  ]}
+                >
+                  3:00
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => startTimer(TEST_MODE ? 3 : 300)}
-                style={styles.presetButton}
+                onPress={() => setSelectedRestTime(TEST_MODE ? 3 : 300)}
+                style={[
+                  styles.presetButton,
+                  selectedRestTime === (TEST_MODE ? 3 : 300) && {
+                    backgroundColor: theme.primary
+                  }
+                ]}
               >
-                <Text style={styles.presetButtonText}>5:00</Text>
+                <Text
+                  style={[
+                    styles.presetButtonText,
+                    selectedRestTime === (TEST_MODE ? 3 : 300) && {
+                      color: "white"
+                    }
+                  ]}
+                >
+                  5:00
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => setShowBodyweightInput(!showBodyweightInput)}

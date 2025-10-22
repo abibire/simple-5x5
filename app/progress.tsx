@@ -1,3 +1,9 @@
+import { exerciseNames } from "@/src/constants/constants";
+import { useTheme } from "@/src/contexts/ThemeContext";
+import { useWorkout } from "@/src/contexts/WorkoutContext";
+import { createThemedStyles } from "@/src/styles/themedStyles";
+import { ExerciseKey, WorkoutHistoryItem } from "@/src/types/types";
+import { convertWeight } from "@/src/utils/utils";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useMemo, useState } from "react";
@@ -11,12 +17,6 @@ import {
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { exerciseNames } from "@/src/constants/constants";
-import { useTheme } from "@/src/contexts/ThemeContext";
-import { createThemedStyles } from "@/src/styles/themedStyles";
-import { ExerciseKey, WorkoutHistoryItem } from "@/src/types/types";
-import { convertWeight } from "@/src/utils/utils";
-import { useWorkout } from "@/src/contexts/WorkoutContext";
 
 const EXERCISE_COLORS: Record<ExerciseKey | "bodyweight", string> = {
   squat: "#0f63f9",
