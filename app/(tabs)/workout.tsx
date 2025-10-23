@@ -108,6 +108,7 @@ const Simple5x5App: React.FC = () => {
 
   const appState = useRef(AppState.currentState);
   const isManualSwitch = useRef(false);
+  const selectedRestTimeRef = useRef(selectedRestTime);
 
   const activeAccessories = accessories.filter(
     (acc) => acc.enabled && acc.workouts.includes(currentWorkout)
@@ -122,6 +123,10 @@ const Simple5x5App: React.FC = () => {
     const increment = unitSystem === "lbs" ? 2.5 : 1.25;
     return Math.round(weight / increment) * increment;
   };
+
+  useEffect(() => {
+    selectedRestTimeRef.current = selectedRestTime;
+  }, [selectedRestTime]);
 
   useEffect(() => {
     setupNotifications();
@@ -379,7 +384,7 @@ const Simple5x5App: React.FC = () => {
         setIsTimerRunning(false);
         setEndsAt(null);
         setTimeout(async () => {
-          await startTimer(TEST_MODE ? 2 : 180);
+          await startTimer(selectedRestTimeRef.current);
         }, 100);
       }
       return updatedSession;
