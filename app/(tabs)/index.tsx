@@ -203,7 +203,8 @@ const HomeApp: React.FC = () => {
                                           { fontSize: 11 }
                                         ]}
                                       >
-                                        {displayWeight} {unitSystem} ×{" "}
+                                        {displayWeight}
+                                        {unitSystem} ×{" "}
                                         {accessory.sets.join(", ")}
                                       </Text>
                                     </View>
