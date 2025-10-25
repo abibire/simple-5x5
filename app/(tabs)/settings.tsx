@@ -391,10 +391,7 @@ const SettingsApp: React.FC = () => {
                     {name}
                   </Text>
                   <View style={{ flexDirection: "row", gap: 8 }}>
-                    {(key === "deadlift"
-                      ? (["1x5", "3x5", "5x5"] as RepScheme[])
-                      : (["5x5", "3x5", "1x5"] as RepScheme[])
-                    ).map((scheme) => (
+                    {(["5x5", "3x5", "1x5"] as RepScheme[]).map((scheme) => (
                       <TouchableOpacity
                         key={scheme}
                         onPress={() => handleRepSchemeChange(key, scheme)}
