@@ -190,18 +190,12 @@ const HomeApp: React.FC = () => {
                                       style={styles.historyExercise}
                                     >
                                       <Text
-                                        style={[
-                                          styles.historyExerciseName,
-                                          { fontSize: 11 }
-                                        ]}
+                                        style={[styles.historyExerciseName]}
                                       >
                                         {accessory.name}
                                       </Text>
                                       <Text
-                                        style={[
-                                          styles.historyExerciseData,
-                                          { fontSize: 11 }
-                                        ]}
+                                        style={[styles.historyExerciseData]}
                                       >
                                         {displayWeight}
                                         {unitSystem} ×{" "}

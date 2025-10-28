@@ -499,10 +499,8 @@ const Simple5x5App: React.FC = () => {
         return prev;
       }
       newSession[accessoryId] = [...newSession[accessoryId]];
-
       const currentReps = newSession[accessoryId][setIndex];
       let nextReps: number;
-
       if (currentReps === -1) {
         nextReps = targetReps;
       } else if (currentReps === 0) {
@@ -510,13 +508,10 @@ const Simple5x5App: React.FC = () => {
       } else {
         nextReps = currentReps - 1;
       }
-
       newSession[accessoryId][setIndex] = nextReps;
-
       if (nextReps > 0) {
         startTimer(restTime);
       }
-
       return newSession;
     });
   };
@@ -585,9 +580,7 @@ const Simple5x5App: React.FC = () => {
     setBodyweight("");
     setShowBodyweightInput(false);
     initializeAccessorySession();
-
     handleWorkoutCompletion(TEST_MODE);
-
     router.push("/");
   };
 
