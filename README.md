@@ -6,7 +6,7 @@ Open-source 5×5 strength training app for iOS and Android. Built with React Nat
 
 **Android**
 
-- Direct Download — [_(GitHub Releases link)_](https://github.com/abibire/simple-5x5/releases/download/v1.0/app-release.apk)
+- Direct Download — [_(GitHub Releases link)_](https://github.com/abibire/simple-5x5/releases/download/v1.0.2/application-81e72b26-c87d-4f0b-b0af-1971c18e0d6d.apk)
 - Play Store — TBD
 
 **iOS**
