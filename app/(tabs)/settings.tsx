@@ -31,8 +31,6 @@ const SettingsApp: React.FC = () => {
     setUnitSystem,
     weights,
     setWeights,
-    accessories,
-    setAccessories,
     repSchemes,
     setRepSchemes,
     availablePlates,
